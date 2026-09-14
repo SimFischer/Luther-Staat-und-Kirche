@@ -175,6 +175,13 @@ window.SUPABASE_CONFIG = {
    on conflict (user_id) do nothing;
    ```
 
+   **Bequemer:** Melde dich einfach in `lehrer.html` an. Ist das Konto noch
+   nicht freigeschaltet, zeigt die Seite genau den passenden SQL-Befehl an –
+   bereits mit deiner Benutzer-ID und E-Mail gefüllt, mit Schaltfläche zum
+   Kopieren, einem Link zum SQL-Editor deines Projekts und „Erneut prüfen“.
+   Dasselbe gilt, falls `supabase_setup.sql` noch gar nicht ausgeführt wurde;
+   darauf weist die Seite dann eigens hin.
+
 3. Berechtigung wieder entziehen:
 
    ```sql
@@ -200,11 +207,11 @@ Die Datei `.nojekyll` schaltet die Jekyll-Verarbeitung ab.
 ### Zwischengespeicherte Dateien
 
 `index.html` und `lehrer.html` hängen an jeden Verweis auf CSS und JavaScript
-eine Versionsnummer an (`assets/js/app.js?v=4`). Dadurch holt jeder Browser nach
+eine Versionsnummer an (`assets/js/app.js?v=5`). Dadurch holt jeder Browser nach
 einer Änderung automatisch die neue Datei.
 
 **Wichtig:** Wenn du eine Datei unter `assets/` änderst, zähle diese Nummer in
-beiden HTML-Dateien hoch (`?v=5`, `?v=6` …) – sonst behalten Geräte, die die
+beiden HTML-Dateien hoch (`?v=6`, `?v=7` …) – sonst behalten Geräte, die die
 Seite schon einmal geöffnet haben, unter Umständen den alten Stand. In
 `assets/js/lehrer.js` steht dieselbe Nummer noch einmal beim Laden des
 Stylesheets für den HTML-Export.

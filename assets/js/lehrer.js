@@ -131,7 +131,7 @@
     if (!quelle) return;
     var kopie = quelle.cloneNode(true);
     kopie.querySelectorAll(".knopfzeile").forEach(function (k) { k.remove(); });
-    fetch("assets/css/style.css?v=4").then(function (res) { return res.ok ? res.text() : ""; })
+    fetch("assets/css/style.css?v=5").then(function (res) { return res.ok ? res.text() : ""; })
       .catch(function () { return ""; })
       .then(function (css) {
         var titel = a.vorname + " " + a.nachname + " – " + a.kurs;
@@ -225,6 +225,74 @@
   }
   btnAbmelden.addEventListener("click", abmelden);
 
+  /* Adresse des SQL-Editors aus der Projekt-URL ableiten */
+  function sqlEditorLink() {
+    var url = (window.SUPABASE_CONFIG || {}).url || "";
+    var m = url.match(/^https?:\/\/([a-z0-9-]+)\.supabase\.(co|in)/i);
+    return m ? "https://supabase.com/dashboard/project/" + m[1] + "/sql/new"
+             : "https://supabase.com/dashboard";
+  }
+
+  function zeigeFreischaltung(nutzer, tabelleFehlt, meldungstext) {
+    var sql = "insert into public.lehrkraefte (user_id, email)\nvalues ('" +
+      nutzer.id + "', '" + (nutzer.email || "") + "')\non conflict (user_id) do nothing;";
+
+    bereich.innerHTML =
+      '<section class="karte" style="max-width:46rem">' +
+        "<h1>" + (tabelleFehlt ? "Datenbank noch nicht eingerichtet" : "Konto noch nicht freigeschaltet") + "</h1>" +
+        (tabelleFehlt
+          ? '<p class="lead">Die Anmeldung hat geklappt, aber die Tabelle <code>lehrkraefte</code> ist nicht erreichbar. ' +
+            "Führe zuerst den gesamten Inhalt von <code>supabase_setup.sql</code> im SQL-Editor aus.</p>" +
+            (meldungstext ? '<p class="zusatz">Meldung der Datenbank: ' + esc(meldungstext) + "</p>" : "")
+          : '<p class="lead">Die Anmeldung hat geklappt. Damit dieses Konto die Abgaben sehen darf, ' +
+            "muss es einmalig in der Tabelle <code>lehrkraefte</code> eingetragen werden.</p>") +
+
+        '<table class="tabelle" style="margin-bottom:1rem"><tbody>' +
+          "<tr><th>Angemeldet als</th><td>" + esc(nutzer.email || "—") + "</td></tr>" +
+          "<tr><th>Benutzer-ID</th><td><code>" + esc(nutzer.id) + "</code></td></tr>" +
+        "</tbody></table>" +
+
+        "<h3>So schaltest du dieses Konto frei</h3>" +
+        "<ol>" +
+          '<li>Den SQL-Editor deines Projekts öffnen: <a href="' + sqlEditorLink() + '" target="_blank" rel="noopener">SQL-Editor bei Supabase</a>.</li>' +
+          (tabelleFehlt ? "<li>Zuerst den gesamten Inhalt von <code>supabase_setup.sql</code> einfügen und ausführen.</li>" : "") +
+          "<li>Den folgenden Befehl einfügen und ausführen – er ist bereits mit deinen Daten gefüllt.</li>" +
+          '<li>Danach hier auf <strong>Erneut prüfen</strong> klicken.</li>' +
+        "</ol>" +
+
+        '<pre id="sqlBefehl" style="white-space:pre-wrap;background:var(--papier);border:1px solid var(--linie);' +
+        'border-radius:6px;padding:.7rem .8rem;font-size:.86rem;overflow-x:auto">' + esc(sql) + "</pre>" +
+
+        '<div class="knopfzeile">' +
+          '<button type="button" class="knopf" id="btnKopieren">Befehl kopieren</button>' +
+          '<button type="button" class="knopf stumm" id="btnErneut">Erneut prüfen</button>' +
+        "</div>" +
+        '<p class="zusatz" id="kopierMeldung" style="margin-top:.6rem"></p>' +
+
+        '<p class="zusatz">Weitere Konten schaltest du genauso frei: Konto im Dashboard unter ' +
+        "Authentication → Users anlegen, dort anmelden und diesen Schritt wiederholen. " +
+        "Entziehen lässt sich die Berechtigung mit <code>delete from public.lehrkraefte where email = '…';</code></p>" +
+      "</section>";
+
+    document.getElementById("btnErneut").addEventListener("click", pruefeFreigabe);
+    document.getElementById("btnKopieren").addEventListener("click", function () {
+      var hinweis = document.getElementById("kopierMeldung");
+      function geschafft() { hinweis.textContent = "Befehl kopiert. Jetzt im SQL-Editor einfügen und ausführen."; }
+      function misslungen() { hinweis.textContent = "Kopieren nicht möglich – bitte den Befehl oben von Hand markieren."; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(sql).then(geschafft, misslungen);
+      } else {
+        try {
+          var bereichAuswahl = document.createRange();
+          bereichAuswahl.selectNodeContents(document.getElementById("sqlBefehl"));
+          var aus = window.getSelection();
+          aus.removeAllRanges(); aus.addRange(bereichAuswahl);
+          document.execCommand("copy") ? geschafft() : misslungen();
+        } catch (e) { misslungen(); }
+      }
+    });
+  }
+
   function pruefeFreigabe() {
     bereich.innerHTML = '<div class="karte">Berechtigung wird geprüft …</div>';
     sb.auth.getUser().then(function (u) {
@@ -234,11 +302,13 @@
       btnAbmelden.hidden = false;
       return sb.from("lehrkraefte").select("user_id").eq("user_id", nutzer.id).maybeSingle()
         .then(function (res) {
-          if (res.error || !res.data) {
-            bereich.innerHTML = meldung("fehler", "Kein Zugriff",
-              "Dieses Konto ist noch nicht als Lehrkraft freigeschaltet. Die Freischaltung erfolgt über einen Eintrag in der Tabelle public.lehrkraefte (siehe supabase_setup.sql).");
+          if (res.error) {
+            var t = String(res.error.message || "");
+            // Fehlende Tabelle oder fehlende Rechte von einer schlichten Leermenge unterscheiden
+            zeigeFreischaltung(nutzer, /does not exist|schema cache|relation|permission/i.test(t), t);
             return;
           }
+          if (!res.data) { zeigeFreischaltung(nutzer, false, null); return; }
           laden();
         });
     });

@@ -130,6 +130,10 @@ create policy "eigener freigabeeintrag"
 --       where email = 'lehrkraft@schule.de'
 --       on conflict (user_id) do nothing;
 --
+--  Bequemer: einmal in lehrer.html anmelden. Ist das Konto noch nicht
+--  freigeschaltet, zeigt die Seite den passenden Befehl bereits mit der
+--  richtigen Benutzer-ID an, zum Kopieren und Ausführen.
+--
 --  3. Zum Entziehen der Berechtigung:
 --       delete from public.lehrkraefte
 --       where email = 'lehrkraft@schule.de';

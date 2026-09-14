@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lehrerbereich – Luther Zwei Regimente</title>
+<script src="supabase_config.js"></script>
+<style>
+:root{--bg:#efece2;--paper:#fbf9f2;--ink:#22251f;--muted:#666a61;--blue:#7897c8;--blueD:#506d9d;--line:#d6cebd;--soft:#f4f0e6;--good:#4e7458;--bad:#9b4f54;--shadow:0 10px 28px rgba(47,42,30,.10)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}button,input,select{font:inherit}.app{max-width:1280px;margin:0 auto;padding:16px}.header,.panel{background:var(--paper);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}.header{padding:20px}.panel{padding:18px;margin-top:16px}h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:.2rem 0 .7rem}.kicker{text-transform:uppercase;letter-spacing:.11em;font-size:.8rem;font-weight:800;color:var(--muted)}.muted{color:var(--muted)}.btn{border:0;border-radius:11px;background:var(--blueD);color:#fff;padding:10px 14px;min-height:43px;font-weight:800;cursor:pointer}.btn.secondary{background:#ebe5d9;color:var(--ink);border:1px solid var(--line)}.btn:disabled{opacity:.45}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.login{max-width:560px;margin:20px auto}.field{margin:10px 0}.field label{font-weight:800;display:block;margin-bottom:4px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:11px;background:#fff;min-height:44px}.status{display:none;margin-top:10px;padding:11px 13px;border-radius:11px}.status.show{display:block}.status.bad{background:#f8e9e9;border:1px solid #e2b7ba;color:#75383d}.status.good{background:#eaf3eb;border:1px solid #cbdccc;color:#385641}.toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:end}.toolbar .field{min-width:180px;flex:1}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.stat{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:13px}.stat b{display:block;font-size:1.45rem}.tableWrap{overflow:auto;margin-top:14px;border:1px solid var(--line);border-radius:14px}table{border-collapse:collapse;width:100%;min-width:830px;background:#fff}th,td{text-align:left;padding:11px 12px;border-bottom:1px solid #e4ded1;vertical-align:top}th{background:#f2eee5;position:sticky;top:0}tr:last-child td{border-bottom:0}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#e9eef7;color:#3d5c88;font-size:.84rem;font-weight:800}.hidden{display:none!important}.modalBack{display:none;position:fixed;inset:0;background:rgba(20,22,18,.5);z-index:100;padding:15px}.modalBack.show{display:grid;place-items:center}.modal{width:min(1050px,97vw);max-height:92vh;overflow:auto;background:var(--paper);border-radius:20px;padding:18px}.modalHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;position:sticky;top:0;background:var(--paper);padding-bottom:10px;border-bottom:1px solid var(--line);z-index:2}.section{margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}.answer{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0;white-space:pre-wrap}.highlights{display:flex;flex-wrap:wrap;gap:7px}.hl{border-radius:8px;padding:7px 9px;border:1px solid #d7cebd}.hl-yellow{background:#fff1a3}.hl-green{background:#cae6c4}.hl-blue{background:#cbdff7}.hl-rose{background:#f1c8d0}@media(max-width:800px){.grid2,.stats{grid-template-columns:1fr}.app{padding:8px}.toolbar{display:grid;grid-template-columns:1fr}.toolbar .field{min-width:0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="kicker">Lehrerbereich · Q1 Religion</div>
+    <h1>Luther – Zwei Regimente</h1>
+    <div class="muted">Abgaben der interaktiven Unterrichtsanwendung</div>
+  </header>
+
+  <section class="panel login" id="loginPanel">
+    <h2>Lehrkraft anmelden</h2>
+    <p class="muted">Der Zugriff erfolgt über Supabase Auth. Nur freigeschaltete Lehrkraft-Konten können Schülerabgaben lesen.</p>
+    <div class="field"><label for="email">E-Mail</label><input id="email" type="email" autocomplete="username"></div>
+    <div class="field"><label for="password">Passwort</label><input id="password" type="password" autocomplete="current-password"></div>
+    <button class="btn" id="loginBtn">Anmelden</button>
+    <div class="status" id="loginStatus"></div>
+  </section>
+
+  <section class="panel hidden" id="dashboard">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
+      <div><h2>Abgaben</h2><div class="muted" id="who"></div></div>
+      <div><button class="btn secondary" id="reloadBtn">Neu laden</button> <button class="btn secondary" id="csvBtn">CSV exportieren</button> <button class="btn" id="logoutBtn">Abmelden</button></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="muted">Abgaben</span><b id="statCount">0</b></div>
+      <div class="stat"><span class="muted">Lerngruppen</span><b id="statClasses">0</b></div>
+      <div class="stat"><span class="muted">Ø Bearbeitungszeit</span><b id="statDuration">–</b></div>
+      <div class="stat"><span class="muted">Heute</span><b id="statToday">0</b></div>
+    </div>
+    <div class="toolbar" style="margin-top:14px">
+      <div class="field"><label for="search">Suche</label><input id="search" type="text" placeholder="Name oder Kurs"></div>
+      <div class="field"><label for="classFilter">Lerngruppe</label><select id="classFilter"><option value="">Alle</option></select></div>
+    </div>
+    <div class="status" id="loadStatus"></div>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Name</th><th>Kurs</th><th>Abgabe</th><th>Zeit</th><th>Seiten</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div class="modalBack" id="detailBack">
+  <div class="modal">
+    <div class="modalHead"><div><div class="kicker">Schülerabgabe</div><h2 id="detailTitle"></h2><div class="muted" id="detailMeta"></div></div><button class="btn secondary" id="closeDetail">Schließen</button></div>
+    <div id="detailBody"></div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const cfg=window.LUTHER_SUPABASE_CONFIG||{};
+const configured=cfg.url&&cfg.publishableKey&&!cfg.url.includes('DEIN-PROJEKT')&&!cfg.publishableKey.includes('DEIN-PUBLISHABLE');
+const supabase=configured?createClient(cfg.url,cfg.publishableKey):null;
+const loginPanel=document.getElementById('loginPanel'),dashboard=document.getElementById('dashboard'),loginStatus=document.getElementById('loginStatus'),loadStatus=document.getElementById('loadStatus');
+let allRows=[];
+function status(el,kind,msg){el.className='status show '+kind;el.textContent=msg}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function fmtDuration(sec){sec=Number(sec)||0;const m=Math.floor(sec/60),s=sec%60;return m?`${m} min ${s}s`:`${s}s`}
+function fmtDate(v){return new Intl.DateTimeFormat('de-DE',{dateStyle:'short',timeStyle:'short'}).format(new Date(v))}
+if(!configured){status(loginStatus,'bad','Supabase ist noch nicht konfiguriert. Trage Projekt-URL und Publishable Key in supabase_config.js ein.');document.getElementById('loginBtn').disabled=true}
+
+async function showSession(){const {data:{session}}=await supabase.auth.getSession();if(session){loginPanel.classList.add('hidden');dashboard.classList.remove('hidden');document.getElementById('who').textContent=session.user.email||'';await loadRows()}else{loginPanel.classList.remove('hidden');dashboard.classList.add('hidden')}}
+if(supabase)showSession();
+
+document.getElementById('loginBtn').addEventListener('click',async()=>{loginStatus.className='status';const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;if(!email||!password){status(loginStatus,'bad','Bitte E-Mail und Passwort eingeben.');return}const {error}=await supabase.auth.signInWithPassword({email,password});if(error){status(loginStatus,'bad','Anmeldung fehlgeschlagen. Prüfe E-Mail, Passwort und die Lehrerfreigabe.');return}await showSession()});
+document.getElementById('logoutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();await showSession()});
+document.getElementById('reloadBtn').addEventListener('click',()=>loadRows());
+
+async function loadRows(){loadStatus.className='status';const {data,error}=await supabase.from('luther_submissions').select('*').eq('lesson_key','luther-zwei-regimente').order('submitted_at',{ascending:false});if(error){status(loadStatus,'bad','Abgaben konnten nicht geladen werden. Prüfe, ob dein Lehrkraft-Konto in luther_teacher_access freigeschaltet wurde.');return}allRows=data||[];populateFilters();renderStats();renderRows()}
+function populateFilters(){const sel=document.getElementById('classFilter'),cur=sel.value;const classes=[...new Set(allRows.map(x=>x.class_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));sel.innerHTML='<option value="">Alle</option>'+classes.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');if(classes.includes(cur))sel.value=cur}
+function renderStats(){document.getElementById('statCount').textContent=allRows.length;document.getElementById('statClasses').textContent=new Set(allRows.map(x=>x.class_name).filter(Boolean)).size;document.getElementById('statDuration').textContent=allRows.length?fmtDuration(Math.round(allRows.reduce((a,x)=>a+(Number(x.duration_seconds)||0),0)/allRows.length)):'–';const today=new Date();document.getElementById('statToday').textContent=allRows.filter(x=>{const d=new Date(x.submitted_at);return d.toDateString()===today.toDateString()}).length}
+function filtered(){const q=document.getElementById('search').value.trim().toLowerCase(),c=document.getElementById('classFilter').value;return allRows.filter(x=>(!c||x.class_name===c)&&(!q||`${x.student_name} ${x.class_name}`.toLowerCase().includes(q)))}
+function renderRows(){const tbody=document.getElementById('rows'),rows=filtered();tbody.innerHTML=rows.length?rows.map(r=>`<tr><td><b>${esc(r.student_name)}</b></td><td>${esc(r.class_name)}</td><td>${fmtDate(r.submitted_at)}</td><td>${fmtDuration(r.duration_seconds)}</td><td><span class="pill">${r.completed_pages}/7</span></td><td><button class="btn secondary" data-open="${r.id}">Ansehen</button></td></tr>`).join(''):'<tr><td colspan="6" class="muted">Keine passenden Abgaben.</td></tr>';tbody.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>openDetail(b.dataset.open)))}
+document.getElementById('search').addEventListener('input',renderRows);document.getElementById('classFilter').addEventListener('change',renderRows);
+
+function answerBox(title,value){return `<div class="answer"><b>${esc(title)}</b><br>${esc(value||'–')}</div>`}
+function choiceMap(obj,labels){if(!obj)return '–';return Object.entries(obj).map(([k,v])=>`${labels?.[k]||k}: ${v}`).join(' | ')}
+function openDetail(id){const r=allRows.find(x=>x.id===id);if(!r)return;document.getElementById('detailTitle').textContent=r.student_name;document.getElementById('detailMeta').textContent=`${r.class_name} · ${fmtDate(r.submitted_at)} · ${fmtDuration(r.duration_seconds)}`;const a=r.answers||{},h=r.highlights||{};let html='';
+html+=`<div class="section"><h3>1 · Entstehung</h3>${answerBox('Position zur Diskussionsfrage',a.kontext?.position)}${answerBox('Begründung',a.kontext?.reason)}</div>`;
+html+=`<div class="section"><h3>2 · Zwei Regimente</h3>${answerBox('Geistliches Regiment',(a.regimente?.geistlich||[]).join(', '))}${answerBox('Weltliches Regiment',(a.regimente?.weltlich||[]).join(', '))}${answerBox('Gemeinsamer Kern',a.regimente?.common_goal)}</div>`;
+html+=`<div class="section"><h3>3 · Der Christ in beiden</h3>${answerBox('Rückbezug „Sünder und Gerechtfertigter zugleich“',a.christ_in_beiden?.simul)}${answerBox('Aussagen',choiceMap(a.christ_in_beiden?.statements))}</div>`;
+html+=`<div class="section"><h3>4 · Sach- und Glaubensfragen</h3>${answerBox('Fallzuordnungen',choiceMap(a.sach_und_glaubensfragen?.cases))}${answerBox('Grundgedanke',a.sach_und_glaubensfragen?.summary)}</div>`;
+html+=`<div class="section"><h3>5 · Gehorsam und Widerstand</h3>${answerBox('Entscheidungsweg',choiceMap(a.widerstand?.flow))}</div>`;
+html+=`<div class="section"><h3>6 · Tafelbild</h3><div class="answer">${Object.entries(a.tafelbild||{}).map(([k,v])=>`<b>${esc(k)}:</b> ${esc(v.text)} ${v.filled?'✓':'✗'}`).join('<br>')}</div></div>`;
+html+=`<div class="section"><h3>7 · Gegenwartsbezug</h3>${answerBox('Thema',a.transfer?.topic)}${answerBox('Recherche',a.transfer?.research)}${answerBox('Analyse',a.transfer?.analyse)}${answerBox('Urteil',a.transfer?.judgement)}</div>`;
+html+=`<div class="section"><h3>Textmarkierungen</h3>`;for(const [key,items] of Object.entries(h)){html+=`<h4>${esc(key)}</h4><div class="highlights">${(items||[]).length?(items||[]).map(x=>`<span class="hl ${esc(x.color)}">${esc(x.text)}</span>`).join(''):'<span class="muted">keine Markierungen</span>'}</div>`}html+='</div>';
+document.getElementById('detailBody').innerHTML=html;document.getElementById('detailBack').classList.add('show')}
+document.getElementById('closeDetail').addEventListener('click',()=>document.getElementById('detailBack').classList.remove('show'));document.getElementById('detailBack').addEventListener('click',e=>{if(e.target.id==='detailBack')e.currentTarget.classList.remove('show')});
+
+document.getElementById('csvBtn').addEventListener('click',()=>{const rows=filtered();const cols=['Name','Kurs','Abgabe','Dauer (s)','Thema','Urteil'];const csv=[cols.join(';'),...rows.map(r=>[r.student_name,r.class_name,r.submitted_at,r.duration_seconds,r.answers?.transfer?.topic||'',r.answers?.transfer?.judgement||''].map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(';'))].join('\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='luther-zwei-regimente-abgaben.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
+</script>
+</body>
+</html>

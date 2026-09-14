@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Luther – Zwei Regimente interaktiv</title>
+<style>
+:root{
+  --bg:#efece2; --paper:#fbf9f2; --ink:#22251f; --muted:#666a61;
+  --blue:#7897c8; --blueD:#506d9d; --line:#d6cebd; --soft:#f4f0e6;
+  --good:#4e7458; --warn:#a16d26; --bad:#9b4f54; --shadow:0 10px 28px rgba(47,42,30,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,textarea,select{font:inherit} button{touch-action:manipulation}
+body{overflow-x:hidden}
+.app{max-width:1220px;margin:0 auto;padding:14px 14px 54px}
+.header{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px 20px;box-shadow:var(--shadow);position:sticky;top:8px;z-index:80}
+.kicker{font-size:.79rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:800}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;line-height:1.12;margin:.25rem 0;color:#22251f}
+h1{font-size:clamp(1.8rem,3.5vw,3.3rem)} h2{font-size:clamp(1.55rem,2.8vw,2.35rem)} h3{font-size:1.15rem}
+.headerRow{display:flex;gap:14px;align-items:flex-start;justify-content:space-between}.headerRow>div{min-width:0}.headerActions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{border:none;border-radius:12px;padding:11px 15px;min-height:44px;background:var(--blueD);color:#fff;font-weight:800;cursor:pointer}
+.btn.secondary{background:#ebe5d9;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost{background:transparent;color:var(--blueD);border:1px solid var(--blueD)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.progressWrap{margin-top:12px}.progressLine{height:9px;border-radius:999px;background:#dfd8c8;overflow:hidden}.progressBar{height:100%;width:0;background:linear-gradient(90deg,var(--blueD),var(--blue));transition:width .3s ease}
+.steps{display:flex;gap:7px;overflow-x:auto;padding-top:10px;scrollbar-width:none}.steps::-webkit-scrollbar{display:none}.stepDot{flex:0 0 auto;display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:#f6f3eb;border-radius:999px;padding:8px 11px;font-size:.9rem;color:var(--muted)}.stepDot.active{background:#eaf0fa;border-color:#a9bfdf;color:#34527d}.stepDot.locked{opacity:.45}.num{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#e8e1d3;font-size:.8rem;font-weight:800}.active .num{background:var(--blueD);color:white}
+.screen{display:none;background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:clamp(18px,3vw,32px);margin-top:18px;box-shadow:var(--shadow);min-height:620px}.screen.active{display:block}
+.stageLabel{display:inline-block;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--blueD);font-weight:800;margin-bottom:5px}
+.lead{font-size:1.05rem;max-width:900px;color:#30332d}.mini{font-size:.9rem;color:var(--muted)}
+.reading{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(250px,.55fr);gap:22px;align-items:start;margin-top:16px}.textPaper{background:linear-gradient(#fffdfa,#f9f5eb);border:1px solid #d8cfbd;border-radius:18px;padding:22px;box-shadow:inset 0 1px 0 white}.sourceText{font-family:Georgia,"Times New Roman",serif;font-size:1.08rem;line-height:1.72}.sourceText p{margin:.05rem 0 1rem}.sourceText:last-child p:last-child{margin-bottom:0}.sideNote{background:#eef3fa;border:1px solid #cfdced;border-radius:16px;padding:15px}.sourceRef{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:.86rem;color:var(--muted)}
+.taskPanel{display:none;margin-top:18px;background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:18px}.taskPanel.show{display:block}.taskPanel h3{margin-top:0}.taskPanel .sourceToggle{display:inline-flex;align-items:center;gap:7px;margin-bottom:12px}
+.collapseSource{display:none;background:#fffdf9;border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:14px;max-height:330px;overflow:auto}.collapseSource.show{display:block}
+.question{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;margin-top:12px}.question strong{display:block;margin-bottom:8px}.choiceRow{display:flex;gap:8px;flex-wrap:wrap}.choice{border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 12px;min-height:42px;cursor:pointer}.choice.selected{background:#eaf0fa;border-color:var(--blueD);outline:2px solid rgba(80,109,157,.13)}
+textarea,input[type=text]{width:100%;min-height:46px;border:1px solid var(--line);border-radius:11px;padding:11px;background:#fff} textarea{min-height:110px;resize:vertical}
+.feedback{display:none;margin-top:10px;padding:11px 13px;border-radius:11px;background:#f3efe6}.feedback.show{display:block}.feedback.good{border-left:5px solid var(--good)}.feedback.warn{border-left:5px solid var(--warn)}.feedback.bad{border-left:5px solid var(--bad)}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.unlockMsg{display:none;margin-top:12px;padding:11px 13px;border-radius:12px;background:#eaf3eb;border:1px solid #cbdccc;color:#385641}.unlockMsg.show{display:block}
+
+.sortArea{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.bucket{background:#fbfaf6;border:2px dashed #cbbfae;border-radius:14px;padding:12px;min-height:180px}.bucket h3{margin:.1rem 0 .6rem}.cardBank{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 11px;cursor:pointer}.chip.selected{background:#eaf0fa;border-color:var(--blueD)}.chip:disabled{opacity:.45}.placed{display:flex;gap:6px;flex-wrap:wrap}.placed .tag{background:#ece6da;border-radius:999px;padding:7px 9px;font-size:.91rem}
+
+.statementList{display:grid;gap:10px}.statement{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px}.statement .choiceRow{margin-top:8px}
+
+.boardExplain{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start;margin-top:15px}.bankPanel{background:#f4f0e7;border:1px solid var(--line);border-radius:16px;padding:14px;position:sticky;top:150px}.bankPanel h3{margin-top:0}.boardWrap{overflow:auto;border-radius:18px}.board{position:relative;min-width:980px;height:640px;background:linear-gradient(180deg,#fffdf8,#f5f0e5);border:1px solid #d6cebd;border-radius:18px;box-shadow:inset 0 0 40px rgba(88,80,61,.05)}
+.boardTitle{position:absolute;left:45px;right:45px;top:24px;text-align:center;color:#7090c5;font-family:Georgia,"Times New Roman",serif;font-size:29px;line-height:1.2}.fixedLabel{position:absolute;font-family:Georgia,"Times New Roman",serif;color:#2f3744;text-align:center}.slot{position:absolute;border:2px dashed #b9c6da;border-radius:13px;background:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;min-height:52px;color:#7a8290;font-family:Georgia,"Times New Roman",serif}.slot.filled{border-style:solid;border-color:#9fb3d1;color:#26466f;background:#fff}.slot.selected{outline:3px solid rgba(80,109,157,.20)}
+.boardArrow{position:absolute;height:2px;background:#85a0cd;transform-origin:left center}.boardArrow::after{content:"";position:absolute;right:-1px;top:-4px;border-left:8px solid #85a0cd;border-top:5px solid transparent;border-bottom:5px solid transparent}
+.boardNote{position:absolute;color:#45628c;font-family:Georgia,"Times New Roman",serif;text-align:center;font-size:19px;line-height:1.25}.boardHelp{display:none;margin-top:12px;background:#eef3fa;border:1px solid #cfdced;border-radius:14px;padding:13px}.boardHelp.show{display:block}.boardCheck{margin-top:12px}
+
+.modalBackdrop{display:none;position:fixed;inset:0;background:rgba(26,28,24,.46);z-index:120;padding:16px}.modalBackdrop.show{display:grid;place-items:center}.modal{width:min(980px,96vw);max-height:90vh;overflow:auto;background:var(--paper);border-radius:22px;padding:20px;border:1px solid var(--line);box-shadow:0 25px 80px rgba(0,0,0,.25)}.modalHeader{display:flex;justify-content:space-between;gap:10px;align-items:center;position:sticky;top:0;background:var(--paper);padding-bottom:10px;border-bottom:1px solid var(--line)}.modalBody{padding-top:12px}.archiveSection{border-bottom:1px solid var(--line);padding:12px 0}.archiveSection:last-child{border-bottom:none}
+
+.transferGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.taskCard{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px}
+@media(max-width:900px){.reading,.boardExplain,.transferGrid{grid-template-columns:1fr}.bankPanel{position:static}.sortArea{grid-template-columns:1fr}.headerRow{flex-direction:column}.headerActions{justify-content:flex-start}.screen{min-height:auto}.app{padding:8px 8px 40px}.header{top:4px;border-radius:16px}}
+
+/* Persistente Textmarker + automatisch sichtbarer Quellentext bei Aufgaben */
+.markToolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:9px 10px;background:#f3efe5;border:1px solid var(--line);border-radius:12px;position:sticky;top:0;z-index:3}
+.markToolbar .markLabel{font-size:.88rem;font-weight:800;color:var(--muted);margin-right:2px}
+.markBtn{width:38px;height:38px;border:1px solid #c9c1b2;border-radius:10px;cursor:pointer;display:grid;place-items:center;font-weight:900;background:#fff;color:#333}
+.markBtn.yellow{background:#fff2a8}.markBtn.green{background:#cfe8c8}.markBtn.blue{background:#cfe1f8}.markBtn.rose{background:#f3cbd3}
+.markBtn.erase{width:auto;padding:0 10px;background:#fff}.markBtn.clear{width:auto;padding:0 10px;background:#fff}
+.markBtn.active{outline:3px solid rgba(80,109,157,.22);border-color:var(--blueD)}
+.markHint{font-size:.84rem;color:var(--muted);margin:-3px 0 9px}
+.user-highlight{padding:.02em .04em;border-radius:.2em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.user-highlight.hl-yellow{background:#fff1a3}.user-highlight.hl-green{background:#cae6c4}.user-highlight.hl-blue{background:#cbdff7}.user-highlight.hl-rose{background:#f1c8d0}
+.taskSourceDock{position:sticky;top:148px;z-index:35;background:#fffdf8;border:1px solid #cfc5b2;border-radius:16px;padding:10px 12px 12px;margin:-2px 0 16px;box-shadow:0 8px 20px rgba(46,39,25,.12)}
+.taskSourceDock .dockHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+.taskSourceDock .dockTitle{font-weight:900;color:#3a5278}
+.taskSourceDock .dockText{max-height:240px;overflow:auto;padding:4px 8px 2px 2px;overscroll-behavior:contain}
+.taskSourceDock.collapsed .dockText,.taskSourceDock.collapsed .markToolbar,.taskSourceDock.collapsed .markHint{display:none}
+.taskSourceDock .sourceText{font-size:1rem;line-height:1.58}
+.sourceToggle,.collapseSource{display:none!important}
+.highlightToast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#23251f;color:#fff;padding:10px 14px;border-radius:999px;z-index:250;font-size:.9rem;box-shadow:0 8px 22px rgba(0,0,0,.24);opacity:0;pointer-events:none;transition:opacity .2s ease}
+.highlightToast.show{opacity:1}
+@media(max-width:900px){.taskSourceDock{top:138px}.taskSourceDock .dockText{max-height:210px}.markBtn{width:42px;height:42px}.markBtn.erase,.markBtn.clear{width:auto}}
+
+
+.requirementsBox{margin-top:12px;padding:13px 15px;border-radius:13px;background:#fff5e6;border:1px solid #e2c594;color:#6b4b17;display:none}.requirementsBox.show{display:block}.requirementsBox strong{display:block;margin-bottom:6px}.requirementsBox ul{margin:6px 0 0 1.2rem;padding:0}.requirementsBox li{margin:.25rem 0}
+.submitPanel{margin-top:18px;background:#eef3fa;border:1px solid #cfdced;border-radius:18px;padding:18px}.submitGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.submitStatus{margin-top:10px;padding:11px 13px;border-radius:12px;display:none}.submitStatus.show{display:block}.submitStatus.good{background:#eaf3eb;border:1px solid #cbdccc;color:#385641}.submitStatus.warn{background:#fff5e6;border:1px solid #e2c594;color:#6b4b17}.submitStatus.bad{background:#f8e9e9;border:1px solid #e2b7ba;color:#75383d}@media(max-width:700px){.submitGrid{grid-template-columns:1fr}}
+</style>
+<script src="supabase_config.js"></script>
+</head>
+<body>
+<div class="app" id="app">
+<header class="header">
+  <div class="headerRow">
+    <div>
+      <div class="kicker">Q1 Religion · Martin Luther</div>
+      <h1>Luthers Lehre von den zwei Regimenten</h1>
+      <div class="mini">Lies – sichere – baue das Tafelbild – übertrage.</div>
+    </div>
+    <div class="headerActions">
+      <button class="btn secondary" id="openArchive">Bisherigen Text öffnen</button>
+      <button class="btn ghost" id="resetApp">Neu starten</button>
+    </div>
+  </div>
+  <div class="progressWrap"><div class="progressLine"><div class="progressBar" id="progressBar"></div></div></div>
+  <div class="steps" id="stepBar"></div>
+</header>
+
+<main>
+  <!-- PAGE 1 -->
+  <section class="screen active" data-page="0" data-key="kontext">
+    <div class="stageLabel">Seite 1 · Entstehungssituation</div>
+    <h2>Wo liegt die Grenze staatlicher Macht?</h2>
+    <div class="reading">
+      <div class="textPaper">
+        <div class="sourceText"><p>Von den zahlreichen theologischen Büchern, die im Protestantismus zum Thema »Kirche und Staat« verfasst worden sind, zeigt bis heute eines nach wie vor mit Abstand die größte Wirkung, nämlich Martin Luthers kleine Schrift »Von weltlicher Obrigkeit, wie weit man ihr Gehorsam schuldig sei« aus dem Jahre 1523. Den Argumentationsgang dieses Textes hat man oft etwas missverständlich als Luthers »Zwei-Reiche-Lehre« bezeichnet, obwohl es sich bei dieser Schrift gar nicht um eine grundsätzliche »Lehre« über das Verhältnis von Kirche und Staat handelt, sondern nach Luthers eigenen Worten nur um einen »Sermon«, eine Predigt oder Gelegenheitsschrift also, die in eine ganz bestimmte historische Situation hinein geschrieben wurde: Nach dem Wormser Edikt von 1521 waren in einigen deutschen Ländern nicht nur Luthers Schriften, sondern auch seine Übersetzung des Neuen Testaments verboten worden. Luther wollte darum Herzog Johann von Sachsen, dem die Schrift gewidmet ist, und darüber hinaus alle Fürsten und Untertanen christlich belehren, wo die Grenze des Gehorsams gegenüber der von Gott gesetzten Obrigkeit erreicht sei.</p></div>
+        <div class="sourceRef">Peter Kliemann: <em>Luthers Verständnis von Kirche und Staat</em>, Abschnitt 1.</div>
+      </div>
+      <div class="sideNote">
+        <h3>Beim Lesen</h3>
+        <p>Markiere gedanklich drei Punkte:</p>
+        <ul><li>Wann entsteht die Schrift?</li><li>Welcher konkrete Konflikt steht dahinter?</li><li>Welche Grundfrage möchte Luther klären?</li></ul>
+        <button class="btn" data-reveal="task0">Abschnitt gelesen – zur Aufgabe</button>
+      </div>
+    </div>
+    <div class="taskPanel" id="task0">
+      <button class="btn secondary sourceToggle" data-toggle-source="src0">Textabschnitt anzeigen</button>
+      <div class="collapseSource" id="src0"><div class="sourceText"><p>Von den zahlreichen theologischen Büchern, die im Protestantismus zum Thema »Kirche und Staat« verfasst worden sind, zeigt bis heute eines nach wie vor mit Abstand die größte Wirkung, nämlich Martin Luthers kleine Schrift »Von weltlicher Obrigkeit, wie weit man ihr Gehorsam schuldig sei« aus dem Jahre 1523. Den Argumentationsgang dieses Textes hat man oft etwas missverständlich als Luthers »Zwei-Reiche-Lehre« bezeichnet, obwohl es sich bei dieser Schrift gar nicht um eine grundsätzliche »Lehre« über das Verhältnis von Kirche und Staat handelt, sondern nach Luthers eigenen Worten nur um einen »Sermon«, eine Predigt oder Gelegenheitsschrift also, die in eine ganz bestimmte historische Situation hinein geschrieben wurde: Nach dem Wormser Edikt von 1521 waren in einigen deutschen Ländern nicht nur Luthers Schriften, sondern auch seine Übersetzung des Neuen Testaments verboten worden. Luther wollte darum Herzog Johann von Sachsen, dem die Schrift gewidmet ist, und darüber hinaus alle Fürsten und Untertanen christlich belehren, wo die Grenze des Gehorsams gegenüber der von Gott gesetzten Obrigkeit erreicht sei.</p></div></div>
+      <h3>Zwischensicherung</h3>
+      <div class="question"><strong>1. Bringe die drei Aussagen in eine sinnvolle Reihenfolge.</strong><div id="orderTask" class="statementList"></div><div class="actions"><button class="btn" id="checkOrder">Reihenfolge prüfen</button></div><div class="feedback" id="orderFb"></div></div>
+      <div class="question"><strong>2. Diskussionsfrage</strong><p><em>Eine Regierung befürchtet, dass religiöse Schriften gesellschaftliche Unruhe auslösen. Darf sie deren Verbreitung verbieten?</em></p><div class="choiceRow" id="debateChoice"><button class="choice">eher ja</button><button class="choice">eher nein</button><button class="choice">kommt darauf an</button></div><textarea id="debateReason" placeholder="Begründe deine Position in 2–3 Sätzen."></textarea></div>
+      <div class="actions"><button class="btn" id="finish0">Seite abschließen</button></div><div class="unlockMsg" id="unlock0">Seite 2 ist freigeschaltet.</div>
+    </div>
+  </section>
+
+  <!-- PAGE 2 -->
+  <section class="screen" data-page="1" data-key="regimente">
+    <div class="stageLabel">Seite 2 · Zwei Regierweisen Gottes</div>
+    <h2>Was meint Luther mit „zwei Regimenten“?</h2>
+    <div class="reading">
+      <div class="textPaper">
+        <div class="sourceText">
+          <p>Wenn man von Luthers »Zwei-Reiche-Lehre« spricht, wird man außerdem beachten müssen, dass Luther in seiner Schrift sowohl von »zwei Reichen« als auch von »zwei Regimenten« spricht — ein Sachverhalt, der allzu leicht übersehen wird. Der Kernpunkt von Luthers Argumentation ist, dass geistliches und weltliches Regiment, Kirche und Staat, Evangelium und Welt nicht miteinander verwechselt und vermischt werden dürfen. Man soll die Welt nicht verkirchlichen und die Kirche nicht verweltlichen. In diesem Sinn handelt es sich bei Luthers »Von weltlicher Obrigkeit« weniger um eine Zwei-Reiche- als um eine Zwei-Regimente-»Lehre«.</p>
+          <p>Beide Regimente stehen nach Luther nun im Dienste des Reiches Gottes und kämpfen gemeinsam, wenn auch auf unterschiedlichen Wegen, gegen das Reich des Bösen. Da Christen schon im Anbruch des Reiches Gottes stehen, in dem Vergebung, Liebe und Frieden herrschen, könnten sie eigentlich auf Schwert und Gewalt verzichten. Im »geistlichen Regiment« regiert Gott deshalb auch ausschließlich mit seinem Wort und seiner Liebe. Doch damit allein lässt sich — weil das Reich Gottes ja erst angebrochen und noch im Kampf mit dem Reich des Bösen befindlich ist — die Brutalität von Rechtsbrechern und fremden Soldaten nicht abwehren. Darum braucht Gott vorläufig noch eine andere Regierweise. Im »weltlichen Regiment« nimmt er Fürsten und Soldaten und andere Amtspersonen in Anspruch, die mit weltlicher Macht und Gewalt ausgestattet sind und die dafür sorgen, dass die Guten beschützt und die Bösen bestraft werden.</p>
+        </div>
+        <div class="sourceRef">Peter Kliemann, Abschnitt 2.</div>
+      </div>
+      <div class="sideNote"><h3>Beim Lesen</h3><p>Suche nach:</p><ul><li>dem Mittel des geistlichen Regiments,</li><li>dem Mittel des weltlichen Regiments,</li><li>dem gemeinsamen Ziel beider Regimente.</li></ul><button class="btn" data-reveal="task1">Abschnitt gelesen – zur Aufgabe</button></div>
+    </div>
+    <div class="taskPanel" id="task1">
+      <button class="btn secondary sourceToggle" data-toggle-source="src1">Textabschnitt anzeigen</button>
+      <div class="collapseSource" id="src1"><div class="sourceText"><p>Wenn man von Luthers »Zwei-Reiche-Lehre« spricht, wird man außerdem beachten müssen, dass Luther in seiner Schrift sowohl von »zwei Reichen« als auch von »zwei Regimenten« spricht — ein Sachverhalt, der allzu leicht übersehen wird. Der Kernpunkt von Luthers Argumentation ist, dass geistliches und weltliches Regiment, Kirche und Staat, Evangelium und Welt nicht miteinander verwechselt und vermischt werden dürfen. Man soll die Welt nicht verkirchlichen und die Kirche nicht verweltlichen. In diesem Sinn handelt es sich bei Luthers »Von weltlicher Obrigkeit« weniger um eine Zwei-Reiche- als um eine Zwei-Regimente-»Lehre«.</p><p>Beide Regimente stehen nach Luther nun im Dienste des Reiches Gottes und kämpfen gemeinsam, wenn auch auf unterschiedlichen Wegen, gegen das Reich des Bösen. Da Christen schon im Anbruch des Reiches Gottes stehen, in dem Vergebung, Liebe und Frieden herrschen, könnten sie eigentlich auf Schwert und Gewalt verzichten. Im »geistlichen Regiment« regiert Gott deshalb auch ausschließlich mit seinem Wort und seiner Liebe. Doch damit allein lässt sich — weil das Reich Gottes ja erst angebrochen und noch im Kampf mit dem Reich des Bösen befindlich ist — die Brutalität von Rechtsbrechern und fremden Soldaten nicht abwehren. Darum braucht Gott vorläufig noch eine andere Regierweise. Im »weltlichen Regiment« nimmt er Fürsten und Soldaten und andere Amtspersonen in Anspruch, die mit weltlicher Macht und Gewalt ausgestattet sind und die dafür sorgen, dass die Guten beschützt und die Bösen bestraft werden.</p></div></div>
+      <h3>Zwischensicherung: Sortiere die Begriffe.</h3>
+      <p class="mini">Tippe eine Karte an und ordne sie danach einem Regiment zu.</p>
+      <div class="cardBank" id="termBank"></div>
+      <div class="sortArea">
+        <div class="bucket"><h3>Geistliches Regiment</h3><div class="placed" id="geistPlaced"></div><div class="actions"><button class="btn secondary" data-place="geist">Ausgewählte Karte hier ablegen</button></div></div>
+        <div class="bucket"><h3>Weltliches Regiment</h3><div class="placed" id="weltPlaced"></div><div class="actions"><button class="btn secondary" data-place="welt">Ausgewählte Karte hier ablegen</button></div></div>
+      </div>
+      <div class="question"><strong>Gemeinsamer Kern</strong><p>Vervollständige: Beide Regimente stehen nach Luther im Dienst …</p><input id="commonGoal" type="text" placeholder="…"></div>
+      <div class="actions"><button class="btn" id="checkTerms">Ergebnisse prüfen</button></div><div class="feedback" id="termFb"></div><div class="unlockMsg" id="unlock1">Seite 3 ist freigeschaltet.</div>
+    </div>
+  </section>
+
+  <!-- PAGE 3 -->
+  <section class="screen" data-page="2" data-key="christ">
+    <div class="stageLabel">Seite 3 · Der Christ in beiden Regimenten</div>
+    <h2>Kirche hier – Staat dort? So einfach ist es nicht.</h2>
+    <div class="reading">
+      <div class="textPaper">
+        <div class="sourceText">
+          <p>Konkret grenzte Luther sich mit dieser Konzeption gegenüber folgenden anderen Positionen ab: a) gegenüber einer Einflussnahme von weltlichen Fürsten auf die Verkündigung und Verbreitung des Evangeliums (Beispiel: Verbot von Luthers Schriften); b) gegenüber einer Verquickung von geistlichen und weltlichen Kompetenzen in den Händen von Bischöfen, Äbten und geistlichen Fürsten, die zur Zeit Luthers oft gleichzeitig Landesherren waren und damit staatliche Hoheitsrechte ausübten; c) gegenüber dem Versuch, das Evangelium und das Reich Gottes unmittelbar und mit Gewalt in Politik umzusetzen (Beispiele: Thomas Müntzer; später dann schwärmerische Bauern oder das Täuferreich zu Münster).</p>
+          <p>So sehr Luther also in Abgrenzung zu diesen Positionen auf den Unterschied zwischen den beiden Regierweisen Gottes Wert legt, so eindeutig geht er allerdings auch davon aus, dass man geistliches und weltliches Regiment nicht einfach auf zwei völlig voneinander getrennte Personengruppen verteilen kann. Für ihn verläuft die Grenzlinie zwischen Reich Gottes und Reich des Bösen mitten durch den einzelnen Christenmenschen hindurch, weshalb dieser auch in beiden Regimenten, als Weltperson und als Christperson, als Sünder und als Gerechtfertigter zugleich, seine ihm von Gott zugewiesenen Aufgaben wahrzunehmen hat. Gegen die traditionelle Unterscheidung zwischen Klerus und Laien setzt Luther das Prinzip des allgemeinen Priestertums aller Gläubigen, und diese Gläubigen haben ihren Glauben auch im politischen und gesellschaftlichen Engagement zu bewähren. Luther selbst verstand sich sicherlich in erster Linie als Prediger des Evangeliums, und dennoch mischte er sich durchaus in weltliche Dinge ein. Man denke z. B. an seine beiden Schriften aus dem Jahr 1524 »An die Ratsherren aller Städte deutschen Landes, dass sie christliche Schulen aufrichten und halten sollen« und »Von Kaufhandlung und Wucher«.</p>
+        </div>
+        <div class="sourceRef">Peter Kliemann, Abschnitt 3.</div>
+      </div>
+      <div class="sideNote"><h3>Beim Lesen</h3><p>Achte besonders darauf, <strong>was Luther ausdrücklich nicht will</strong> und <strong>wie er den Christenmenschen einordnet</strong>.</p><button class="btn" data-reveal="task2">Abschnitt gelesen – zur Aufgabe</button></div>
+    </div>
+    <div class="taskPanel" id="task2">
+      <button class="btn secondary sourceToggle" data-toggle-source="src2">Textabschnitt anzeigen</button>
+      <div class="collapseSource" id="src2"><div class="sourceText"><p>Konkret grenzte Luther sich mit dieser Konzeption gegenüber folgenden anderen Positionen ab: a) gegenüber einer Einflussnahme von weltlichen Fürsten auf die Verkündigung und Verbreitung des Evangeliums (Beispiel: Verbot von Luthers Schriften); b) gegenüber einer Verquickung von geistlichen und weltlichen Kompetenzen in den Händen von Bischöfen, Äbten und geistlichen Fürsten, die zur Zeit Luthers oft gleichzeitig Landesherren waren und damit staatliche Hoheitsrechte ausübten; c) gegenüber dem Versuch, das Evangelium und das Reich Gottes unmittelbar und mit Gewalt in Politik umzusetzen (Beispiele: Thomas Müntzer; später dann schwärmerische Bauern oder das Täuferreich zu Münster).</p><p>So sehr Luther also in Abgrenzung zu diesen Positionen auf den Unterschied zwischen den beiden Regierweisen Gottes Wert legt, so eindeutig geht er allerdings auch davon aus, dass man geistliches und weltliches Regiment nicht einfach auf zwei völlig voneinander getrennte Personengruppen verteilen kann. Für ihn verläuft die Grenzlinie zwischen Reich Gottes und Reich des Bösen mitten durch den einzelnen Christenmenschen hindurch, weshalb dieser auch in beiden Regimenten, als Weltperson und als Christperson, als Sünder und als Gerechtfertigter zugleich, seine ihm von Gott zugewiesenen Aufgaben wahrzunehmen hat. Gegen die traditionelle Unterscheidung zwischen Klerus und Laien setzt Luther das Prinzip des allgemeinen Priestertums aller Gläubigen, und diese Gläubigen haben ihren Glauben auch im politischen und gesellschaftlichen Engagement zu bewähren. Luther selbst verstand sich sicherlich in erster Linie als Prediger des Evangeliums, und dennoch mischte er sich durchaus in weltliche Dinge ein. Man denke z. B. an seine beiden Schriften aus dem Jahr 1524 »An die Ratsherren aller Städte deutschen Landes, dass sie christliche Schulen aufrichten und halten sollen« und »Von Kaufhandlung und Wucher«.</p></div></div>
+      <h3>Zwischensicherung: Prüfe die Aussagen.</h3>
+      <div class="statementList" id="christStatements"></div>
+      <div class="question"><strong>Rückgriff auf die letzte Stunde</strong><p>Erkläre in 2–3 Sätzen, warum Kliemann hier von dem Christenmenschen „als Sünder und als Gerechtfertigter zugleich“ spricht.</p><textarea id="simulAnswer" placeholder="…"></textarea></div>
+      <div class="actions"><button class="btn" id="finish2">Seite abschließen</button></div><div class="feedback" id="christFb"></div><div class="unlockMsg" id="unlock2">Seite 4 ist freigeschaltet.</div>
+    </div>
+  </section>
+
+  <!-- PAGE 4 -->
+  <section class="screen" data-page="3" data-key="sachfragen">
+    <div class="stageLabel">Seite 4 · Sachfragen und Glaubensfragen</div>
+    <h2>Welche Rolle darf Glaube in politischen Fragen spielen?</h2>
+    <div class="reading">
+      <div class="textPaper">
+        <div class="sourceText">
+          <p>Wenn der Christ sich zu Fragen der Politik, der Wirtschaft oder des Rechts äußert, dann muss nach Luther vor allem anderen vernünftig und sachlich argumentiert werden. In weltlichen Dingen, die ja auch Nichtchristen betreffen, kennt auch der Glaube keine Patentlösungen; hier hilft nur fachlich qualifiziertes Abwägen und Diskutieren. Umgekehrt lassen sich aber geistliche Fragen, also z. B. »woran ich mein Herz hänge«, letztlich nicht logisch oder argumentativ beantworten.</p>
+          <p>Auf der anderen Seite mündet, wie an früherer Stelle schon ausgeführt, die Klärung von Sachfragen und Handlungsalternativen früher oder später natürlich in Entscheidungssituationen, in denen Fragen der ethischen Wertung und des Glaubens dann durchaus eine Rolle spielen. Um es an heutigen Beispielen zu illustrieren: Sollen Geschäfte am Sonntag geöffnet sein? Sollen wir aus der Atomenergie aussteigen? Ist Gentechnologie verantwortbar? Darf man Abtreibung oder aktive Sterbehilfe legalisieren? Darf der Individualverkehr weiter ausgebaut werden? Sollen wir Waffen in die Dritte Welt liefern?</p>
+          <p>Im Hinblick auf derartige Probleme wäre es ein unverantwortlicher Unfug zu behaupten, der christliche Glaube habe mit »weltlichen« Dingen nichts zu tun. Er hat sehr wohl etwas damit zu tun, nur empfiehlt es sich um der Klarheit und der Sachlichkeit des Entscheidungsprozesses sowie um der eigentlichen Pointe des Evangeliums willen, die vernünftige, für alle nachvollziehbare Sachanalyse eines Problems (also das weltliche Regiment) nicht vorschnell mit Fragen der Wertung und des Glaubens (also dem geistlichen Regiment) zu vermischen. Glaubensfragen sollen Glaubensfragen und Sachfragen Sachfragen bleiben.</p>
+          <p>Da für uns Menschen nie eindeutig zu entscheiden ist, wo genau Reich Gottes ist und wo nicht, wird es nie eine unmittelbare, ungebrochene und vor allem für alle Christinnen und Christen verbindliche Identifikation des Evangeliums mit einer bestimmten parteipolitischen Position geben können. Andererseits gibt es aber zweifellos politische und gesellschaftliche Entwicklungen, die vom biblischen Menschen- und Wirklichkeitsverständnis her nicht mehr gutgeheißen und gebilligt werden können. Wo genau dieser Punkt liegt und welche konkreten Handlungsweisen dann vom einzelnen Christen verlangt werden dürfen, darüber wird auch unter Christen nur ernsthaft gestritten werden können.</p>
+        </div>
+        <div class="sourceRef">Peter Kliemann, Abschnitt 4.</div>
+      </div>
+      <div class="sideNote"><h3>Beim Lesen</h3><p>Suche die Spannung:</p><ul><li>Was muss sachlich begründet werden?</li><li>Wo dürfen Glaube und Werte trotzdem eine Rolle spielen?</li></ul><button class="btn" data-reveal="task3">Abschnitt gelesen – zur Aufgabe</button></div>
+    </div>
+    <div class="taskPanel" id="task3">
+      <button class="btn secondary sourceToggle" data-toggle-source="src3">Textabschnitt anzeigen</button>
+      <div class="collapseSource" id="src3"><div class="sourceText"><p>Wenn der Christ sich zu Fragen der Politik, der Wirtschaft oder des Rechts äußert, dann muss nach Luther vor allem anderen vernünftig und sachlich argumentiert werden. In weltlichen Dingen, die ja auch Nichtchristen betreffen, kennt auch der Glaube keine Patentlösungen; hier hilft nur fachlich qualifiziertes Abwägen und Diskutieren. Umgekehrt lassen sich aber geistliche Fragen, also z. B. »woran ich mein Herz hänge«, letztlich nicht logisch oder argumentativ beantworten.</p><p>Auf der anderen Seite mündet, wie an früherer Stelle schon ausgeführt, die Klärung von Sachfragen und Handlungsalternativen früher oder später natürlich in Entscheidungssituationen, in denen Fragen der ethischen Wertung und des Glaubens dann durchaus eine Rolle spielen. Um es an heutigen Beispielen zu illustrieren: Sollen Geschäfte am Sonntag geöffnet sein? Sollen wir aus der Atomenergie aussteigen? Ist Gentechnologie verantwortbar? Darf man Abtreibung oder aktive Sterbehilfe legalisieren? Darf der Individualverkehr weiter ausgebaut werden? Sollen wir Waffen in die Dritte Welt liefern?</p><p>Im Hinblick auf derartige Probleme wäre es ein unverantwortlicher Unfug zu behaupten, der christliche Glaube habe mit »weltlichen« Dingen nichts zu tun. Er hat sehr wohl etwas damit zu tun, nur empfiehlt es sich um der Klarheit und der Sachlichkeit des Entscheidungsprozesses sowie um der eigentlichen Pointe des Evangeliums willen, die vernünftige, für alle nachvollziehbare Sachanalyse eines Problems (also das weltliche Regiment) nicht vorschnell mit Fragen der Wertung und des Glaubens (also dem geistlichen Regiment) zu vermischen. Glaubensfragen sollen Glaubensfragen und Sachfragen Sachfragen bleiben.</p><p>Da für uns Menschen nie eindeutig zu entscheiden ist, wo genau Reich Gottes ist und wo nicht, wird es nie eine unmittelbare, ungebrochene und vor allem für alle Christinnen und Christen verbindliche Identifikation des Evangeliums mit einer bestimmten parteipolitischen Position geben können. Andererseits gibt es aber zweifellos politische und gesellschaftliche Entwicklungen, die vom biblischen Menschen- und Wirklichkeitsverständnis her nicht mehr gutgeheißen und gebilligt werden können. Wo genau dieser Punkt liegt und welche konkreten Handlungsweisen dann vom einzelnen Christen verlangt werden dürfen, darüber wird auch unter Christen nur ernsthaft gestritten werden können.</p></div></div>
+      <h3>Zwischensicherung: Entscheide und begründe.</h3>
+      <div class="statementList" id="sachCases"></div>
+      <div class="question"><strong>Formuliere Kliemanns Grundgedanken in einem Satz.</strong><textarea id="sachSummary" placeholder="Sachfragen … Glaubensfragen …"></textarea></div>
+      <div class="actions"><button class="btn" id="finish3">Seite abschließen</button></div><div class="feedback" id="sachFb"></div><div class="unlockMsg" id="unlock3">Seite 5 ist freigeschaltet.</div>
+    </div>
+  </section>
+
+  <!-- PAGE 5 -->
+  <section class="screen" data-page="4" data-key="widerstand">
+    <div class="stageLabel">Seite 5 · Gehorsam und Widerstand</div>
+    <h2>Wann endet der Gehorsam gegenüber der Obrigkeit?</h2>
+    <div class="reading">
+      <div class="textPaper">
+        <div class="sourceText">
+          <p>In diesem Zusammenhang ist es von großer Bedeutung, dass Luther in seinen Ausführungen von 1523 auch auf die Situationen eingeht, in denen der Christ zum Widerstand gegen die Obrigkeit verpflichtet ist. Luther argumentiert in diesem Punkt sehr vorsichtig. Obwohl er realistisch sieht, dass Fürsten »die größten Narren oder die schlimmsten Bösewichter (Verbrecher) auf Erden« sein können und »man sich bei ihnen immer auf das Schlimmste gefasst machen« muss, fordert er vom Christen grundsätzlich, der Obrigkeit untertan zu sein, weil auch eine schlechte Obrigkeit noch besser sei als ein allgemeines Chaos und der Zustand der Anarchie.</p>
+          <p>Überschreitet die Obrigkeit allerdings ihre Grenzen und mischt sich in Glaubensfragen ein, versucht sie zum Beispiel die Verbreitung von Bibelübersetzungen zu verhindern, dann ist für Luther Widerstand gefordert, aber nur der gewaltlose Widerstand des Wortes: »Wenn nun dein Fürst oder weltlicher Herr dir gebietet, zum Papst zu halten, so oder so zu glauben, oder wenn er dir gebietet, Bücher herauszugeben, so sollst du so sagen: &gt;Es gebührt Lucifer nicht, neben Gott zu sitzen...&lt; Denn ich sage dir: widersprichst du ihm nicht und gibst ihm nach, so dass er dir den Glauben oder die Bücher nimmt, so hast du wahrlich Gott verleugnet.«</p>
+          <p>Wie der Verfasser von Offb 13 mutet Luther in »Von weltlicher Obrigkeit« dem Christen um der Wahrheit und des Evangeliums willen die Inkaufnahme persönlicher Nachteile bis hin zum Märtyrertod zu. Schließt er in dieser Schrift von 1523 noch jegliche Form des aktiven Widerstands gegen die Obrigkeit aus, so deutet sich in späteren Texten Luthers unter ganz bestimmten, ganz genau abzuwägenden Bedingungen auch diese Möglichkeit an. Während Luther 1526 in der Abhandlung »Ob Kriegsleute auch in seligem Stande sein mögen« den Tyrannenmord deshalb skeptisch beurteilt, weil Tyrannen im Unterschied zu wahnsinnigen Herrschern grundsätzlich noch beeinflussbar und veränderungsfähig seien, so erwägt er 1539 in der »Wittenberger Disputation über das Widerstandsrecht« den Fall, dass die Obrigkeit ihre Aufgaben in gar keiner Weise mehr wahrnimmt und somit eigentlich gar keine Obrigkeit mehr ist, sondern »einem Ungeheuer, einem wütenden und besessenen Tier« gleicht. In einem solchen extremen Fall soll der Christ nach Luther »nicht lange gaffen«, sondern »Widerstand tun« und, um »solch Tier zu vertilgen, ... aus allen Dörfern und Flecken zulaufen, Mann bei Mann«.</p>
+        </div>
+        <div class="sourceRef">Peter Kliemann, Abschnitt 5.</div>
+      </div>
+      <div class="sideNote"><h3>Beim Lesen</h3><p>Unterscheide genau:</p><ul><li>Grundsatz des Gehorsams</li><li>Grenzüberschreitung in Glaubensfragen</li><li>1523: Form des Widerstands</li><li>spätere Entwicklung</li></ul><button class="btn" data-reveal="task4">Abschnitt gelesen – zur Aufgabe</button></div>
+    </div>
+    <div class="taskPanel" id="task4">
+      <button class="btn secondary sourceToggle" data-toggle-source="src4">Textabschnitt anzeigen</button>
+      <div class="collapseSource" id="src4"><div class="sourceText"><p>In diesem Zusammenhang ist es von großer Bedeutung, dass Luther in seinen Ausführungen von 1523 auch auf die Situationen eingeht, in denen der Christ zum Widerstand gegen die Obrigkeit verpflichtet ist. Luther argumentiert in diesem Punkt sehr vorsichtig. Obwohl er realistisch sieht, dass Fürsten »die größten Narren oder die schlimmsten Bösewichter (Verbrecher) auf Erden« sein können und »man sich bei ihnen immer auf das Schlimmste gefasst machen« muss, fordert er vom Christen grundsätzlich, der Obrigkeit untertan zu sein, weil auch eine schlechte Obrigkeit noch besser sei als ein allgemeines Chaos und der Zustand der Anarchie.</p><p>Überschreitet die Obrigkeit allerdings ihre Grenzen und mischt sich in Glaubensfragen ein, versucht sie zum Beispiel die Verbreitung von Bibelübersetzungen zu verhindern, dann ist für Luther Widerstand gefordert, aber nur der gewaltlose Widerstand des Wortes.</p><p>Schließt er in dieser Schrift von 1523 noch jegliche Form des aktiven Widerstands gegen die Obrigkeit aus, so deutet sich in späteren Texten Luthers unter ganz bestimmten, ganz genau abzuwägenden Bedingungen auch diese Möglichkeit an.</p></div></div>
+      <h3>Zwischensicherung: Baue Luthers Entscheidungsweg.</h3>
+      <div class="statementList" id="resistanceFlow"></div>
+      <div class="actions"><button class="btn" id="finish4">Seite abschließen</button></div><div class="feedback" id="resFb"></div><div class="unlockMsg" id="unlock4">Das Tafelbild ist freigeschaltet.</div>
+    </div>
+  </section>
+
+  <!-- PAGE 6 TAFELBILD -->
+  <section class="screen" data-page="5" data-key="tafelbild">
+    <div class="stageLabel">Seite 6 · Ergebnissicherung</div>
+    <h2>Erarbeitet das Tafelbild direkt</h2>
+    <p class="lead">Das Tafelbild ist kein fertiges Ergebnis. Du füllst es Schritt für Schritt. <strong>Tippe zuerst einen Baustein links an und danach das passende Feld im Schaubild.</strong> Wenn du unsicher bist, kannst du jederzeit den bereits gelesenen Text öffnen.</p>
+    <div class="boardExplain">
+      <aside class="bankPanel">
+        <h3>Bausteine</h3>
+        <p class="mini">Wähle einen Baustein. Anschließend tippe auf das passende freie Feld.</p>
+        <div class="cardBank" id="boardBank"></div>
+        <div class="actions"><button class="btn secondary" id="boardReset">Tafelbild zurücksetzen</button><button class="btn ghost" id="showBoardHelp">Erklärung anzeigen</button></div>
+        <div class="boardHelp" id="boardHelp"><strong>So bearbeitest du das Schaubild:</strong><ol><li>Beginne mit dem Baustein, der den Menschen bezeichnet, und suche die zentrale Position.</li><li>Ordne danach die beiden Perspektiven auf den Menschen und die beiden Regimente zu.</li><li>Ergänze anschließend Gemeinsamkeiten, Aufgaben, Mittel und Grenzen.</li><li>Wenn ein Baustein nicht angenommen wird, lies die bereits bearbeiteten Textabschnitte noch einmal und prüfe seine Beziehung zu den umliegenden Feldern.</li></ol><p class="mini">Tipp: Ein bereits eingesetzter Baustein kann durch Antippen wieder zurück in die Auswahl gelegt werden.</p></div>
+      </aside>
+      <div class="boardWrap">
+        <div class="board" id="board">
+          <div class="boardTitle" style="top:18px;font-size:25px">Luthers Verständnis von Staat und Kirche und vom Menschen im Staat<br><strong>Zwei-Reiche-Lehre oder die Lehre von den zwei Regimenten</strong></div>
+          <div class="slot" data-slot="mensch" style="left:365px;top:145px;width:250px;min-height:56px">hier einordnen</div>
+          <div class="boardArrow" style="left:480px;top:206px;width:130px;transform:rotate(27deg)"></div>
+          <div class="boardArrow" style="left:497px;top:206px;width:130px;transform:rotate(153deg)"></div>
+          <div class="slot" data-slot="weltperson" style="left:215px;top:235px;width:175px">hier einordnen</div>
+          <div class="slot" data-slot="christperson" style="left:650px;top:235px;width:185px">hier einordnen</div>
+          <div class="slot" data-slot="weltreg" style="left:145px;top:305px;width:265px;min-height:60px">hier einordnen</div>
+          <div class="slot" data-slot="geistreg" style="left:625px;top:305px;width:270px;min-height:60px">hier einordnen</div>
+          <div class="slot" data-slot="dienst" style="left:420px;top:315px;width:180px;min-height:58px">hier einordnen</div>
+          <div class="slot" data-slot="gesetze" style="left:95px;top:405px;width:330px;min-height:60px">hier einordnen</div>
+          <div class="slot" data-slot="liebe" style="left:620px;top:395px;width:300px;min-height:75px">hier einordnen</div>
+          <div class="slot" data-slot="grenze" style="left:250px;top:495px;width:520px;min-height:58px">hier einordnen</div>
+          <div class="slot" data-slot="engagement" style="left:75px;top:560px;width:830px;min-height:48px">hier einordnen</div>
+        </div>
+      </div>
+    </div>
+    <div class="boardCheck"><button class="btn" id="checkBoard">Tafelbild prüfen</button><div class="feedback" id="boardFb"></div></div>
+    <div class="unlockMsg" id="unlock5">Der Gegenwartsbezug ist freigeschaltet.</div>
+  </section>
+
+  <!-- PAGE 7 TRANSFER -->
+  <section class="screen" data-page="6" data-key="transfer">
+    <div class="stageLabel">Seite 7 · Gegenwartsbezug</div>
+    <h2>Religion und Politik heute</h2>
+    <p class="lead">Übertrage Luthers Modell auf einen heutigen Konflikt. Die Aufgabe ist bewusst offen: Es gibt nicht nur eine vertretbare Antwort, entscheidend ist deine Begründung.</p>
+    <div class="taskCard"><strong>Leitfragen</strong><p><em>Inwiefern lässt sich Luthers Konzept der Zwei-Regimente-Lehre auf heutige politische Diskussionen anwenden?</em></p><p><em>Gibt es Bereiche, in denen eine klare Trennung von Religion und Politik heute nicht möglich oder nicht wünschenswert ist?</em></p></div>
+    <div class="transferGrid" style="margin-top:14px">
+      <div class="taskCard"><h3>1. Recherche</h3><p>Wähle einen aktuellen Streitfall, in dem sich eine Kirche oder Religionsgemeinschaft zu einer politischen Frage äußert.</p><select id="topic"><option>Bitte wählen …</option><option>Sterbehilfe</option><option>Schwangerschaftsabbruch</option><option>Migration und Asyl</option><option>Krieg und Frieden</option><option>Klimapolitik</option><option>Religionsunterricht</option><option>Religiöse Symbole im öffentlichen Raum</option><option>Sonntagsöffnung</option><option>eigenes Thema</option></select><textarea id="research" placeholder="Notiere Position, Begründung und Quelle …"></textarea></div>
+      <div class="taskCard"><h3>2. Prüfen und urteilen</h3><p>Welche Teile des Falls sind <strong>Sachfragen</strong>? Wo spielen <strong>Glaubens- oder Wertfragen</strong> eine Rolle?</p><textarea id="analyse" placeholder="…"></textarea><p>Hilft Luthers Unterscheidung hier weiter – oder stößt sie an Grenzen?</p><textarea id="judgement" placeholder="Begründe dein Urteil …"></textarea></div>
+    </div>
+    <div class="submitPanel" id="submitPanel">
+      <h3>Ergebnisse abgeben</h3>
+      <p class="mini">Wenn du fertig bist, kannst du deine Ergebnisse an die Lehrkraft übermitteln. Deine Antworten, Zuordnungen, das Tafelbild und deine Textmarkierungen werden gemeinsam gespeichert.</p>
+      <div class="submitGrid">
+        <div><label for="studentName"><strong>Name</strong></label><input type="text" id="studentName" placeholder="Vor- und Nachname" autocomplete="name"></div>
+        <div><label for="className"><strong>Kurs / Lerngruppe</strong></label><input type="text" id="className" placeholder="z. B. Q1 Religion"></div>
+      </div>
+      <div class="requirementsBox" id="submitRequirements"></div>
+      <div class="actions"><button class="btn" id="submitResults">Ergebnisse verbindlich abgeben</button></div>
+      <div class="submitStatus" id="submitStatus" aria-live="polite"></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<div class="modalBackdrop" id="archiveModal" role="dialog" aria-modal="true" aria-labelledby="archiveTitle">
+  <div class="modal">
+    <div class="modalHeader"><h2 id="archiveTitle">Bisher gelesener Text</h2><button class="btn secondary" id="closeArchive">Schließen</button></div>
+    <div class="modalBody" id="archiveBody"></div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const pages=[...document.querySelectorAll('.screen')];
+const pageNames=['Entstehung','Zwei Regimente','Der Christ in beiden','Sach- & Glaubensfragen','Gehorsam & Widerstand','Tafelbild','Heute'];
+let current=0, unlocked=0;
+const progressBar=document.getElementById('progressBar'), stepBar=document.getElementById('stepBar');
+function renderSteps(){
+  stepBar.innerHTML='';
+  pageNames.forEach((name,i)=>{
+    const b=document.createElement('button'); b.type='button'; b.className='stepDot'+(i===current?' active':'')+(i>unlocked?' locked':''); b.innerHTML=`<span class="num">${i+1}</span><span>${name}</span>`;
+    b.disabled=i>unlocked; b.addEventListener('click',()=>go(i)); stepBar.appendChild(b);
+  });
+  progressBar.style.width=((unlocked+1)/pages.length*100)+'%';
+}
+function go(i){if(i>unlocked)return; current=i; pages.forEach((p,idx)=>p.classList.toggle('active',idx===i)); window.scrollTo({top:0,behavior:'smooth'}); renderSteps();}
+function unlockNext(i){unlocked=Math.max(unlocked,Math.min(pages.length-1,i+1)); renderSteps();}
+renderSteps();
+const startedAt=Date.now();
+function showRequirements(target,items,title='Noch nicht vollständig'){
+  if(!target)return;
+  target.className='feedback show warn';
+  target.innerHTML=`<strong>${title}</strong><ul>${items.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  target.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+// ---------- Textmarker: markieren, speichern, synchronisieren ----------
+const HL_STORE='luther-zwei-regimente-highlights-v2';
+let hlData={};
+try{hlData=JSON.parse(localStorage.getItem(HL_STORE)||'{}')||{}}catch(e){hlData={}}
+let savedRange=null, savedSourceKey=null, eraseModeKey=null;
+
+const toast=document.createElement('div');
+toast.className='highlightToast';toast.id='highlightToast';document.body.appendChild(toast);
+let toastTimer=null;
+function showToast(msg){toast.textContent=msg;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2100)}
+function sourceKeyForPage(page){return page?.dataset.key||('page-'+page?.dataset.page)}
+function closestElement(node){return node?.nodeType===1?node:node?.parentElement}
+function persistSource(key,html){
+  hlData[key]=html;
+  try{localStorage.setItem(HL_STORE,JSON.stringify(hlData))}catch(e){}
+  document.querySelectorAll(`.sourceText[data-source-key="${CSS.escape(key)}"]`).forEach(el=>{if(el.innerHTML!==html)el.innerHTML=html});
+}
+function unwrapMark(mark){const parent=mark.parentNode;while(mark.firstChild)parent.insertBefore(mark.firstChild,mark);parent.removeChild(mark);parent.normalize()}
+function buildMarkToolbar(key){
+  const wrap=document.createElement('div');
+  wrap.innerHTML=`<div class="markToolbar" data-toolbar-key="${key}">
+    <span class="markLabel">Textmarker:</span>
+    <button type="button" class="markBtn yellow" data-hl-color="hl-yellow" aria-label="Gelb markieren" title="Gelb markieren">✎</button>
+    <button type="button" class="markBtn green" data-hl-color="hl-green" aria-label="Grün markieren" title="Grün markieren">✎</button>
+    <button type="button" class="markBtn blue" data-hl-color="hl-blue" aria-label="Blau markieren" title="Blau markieren">✎</button>
+    <button type="button" class="markBtn rose" data-hl-color="hl-rose" aria-label="Rosa markieren" title="Rosa markieren">✎</button>
+    <button type="button" class="markBtn erase" data-hl-action="erase">Radierer</button>
+    <button type="button" class="markBtn clear" data-hl-action="clear">Alle löschen</button>
+  </div><div class="markHint">Text mit dem Finger oder der Maus auswählen → Farbe antippen. Die Markierungen bleiben beim Seitenwechsel und auch nach einem Neuladen erhalten.</div>`;
+  const node=wrap.firstElementChild;
+  const hint=node.nextElementSibling;
+  const frag=document.createDocumentFragment();frag.appendChild(node);frag.appendChild(hint);
+  return frag;
+}
+function attachSourceIdentity(){
+  pages.forEach(page=>{
+    const src=page.querySelector('.textPaper .sourceText');
+    if(!src)return;
+    const key=sourceKeyForPage(page);src.dataset.sourceKey=key;
+    if(hlData[key])src.innerHTML=hlData[key];
+    const paper=src.closest('.textPaper');
+    if(paper&&!paper.querySelector('.markToolbar'))paper.insertBefore(buildMarkToolbar(key),src);
+  });
+}
+attachSourceIdentity();
+
+document.addEventListener('selectionchange',()=>{
+  const sel=window.getSelection();
+  if(!sel||sel.rangeCount===0||sel.isCollapsed)return;
+  const r=sel.getRangeAt(0);
+  const common=closestElement(r.commonAncestorContainer);
+  const source=common?.closest?.('.sourceText[data-source-key]');
+  if(source&&source.contains(r.startContainer)&&source.contains(r.endContainer)){
+    savedRange=r.cloneRange();savedSourceKey=source.dataset.sourceKey;
+  }
+});
+
+function applyHighlight(color,key){
+  if(!savedRange||savedRange.collapsed||savedSourceKey!==key){showToast('Markiere zuerst eine Textstelle in diesem Abschnitt.');return}
+  const source=closestElement(savedRange.commonAncestorContainer)?.closest('.sourceText[data-source-key]');
+  if(!source||source.dataset.sourceKey!==key){showToast('Markiere zuerst eine Textstelle in diesem Abschnitt.');return}
+  const startP=closestElement(savedRange.startContainer)?.closest('p');
+  const endP=closestElement(savedRange.endContainer)?.closest('p');
+  if(!startP||startP!==endP){showToast('Bitte markiere jeweils innerhalb eines Absatzes.');return}
+  const existing=closestElement(savedRange.commonAncestorContainer)?.closest('mark.user-highlight');
+  if(existing&&source.contains(existing)){
+    existing.className='user-highlight '+color;
+  }else{
+    const mark=document.createElement('mark');mark.className='user-highlight '+color;
+    try{savedRange.surroundContents(mark)}catch(e){const frag=savedRange.extractContents();mark.appendChild(frag);savedRange.insertNode(mark)}
+  }
+  persistSource(key,source.innerHTML);
+  window.getSelection()?.removeAllRanges();savedRange=null;savedSourceKey=null;
+}
+
+document.addEventListener('pointerdown',e=>{
+  if(e.target.closest('.markBtn'))e.preventDefault(); // Auswahl auf iPad/Desktop nicht verlieren
+});
+document.addEventListener('click',e=>{
+  const colorBtn=e.target.closest('[data-hl-color]');
+  if(colorBtn){const key=colorBtn.closest('.markToolbar').dataset.toolbarKey;applyHighlight(colorBtn.dataset.hlColor,key);return}
+  const actionBtn=e.target.closest('[data-hl-action]');
+  if(actionBtn){
+    const tb=actionBtn.closest('.markToolbar'),key=tb.dataset.toolbarKey;
+    if(actionBtn.dataset.hlAction==='erase'){
+      eraseModeKey=eraseModeKey===key?null:key;
+      document.querySelectorAll('.markBtn.erase').forEach(b=>b.classList.toggle('active',b.closest('.markToolbar')?.dataset.toolbarKey===eraseModeKey));
+      showToast(eraseModeKey===key?'Radierer aktiv: Tippe eine Markierung an.':'Radierer ausgeschaltet.');
+    }else if(actionBtn.dataset.hlAction==='clear'){
+      const source=document.querySelector(`.sourceText[data-source-key="${CSS.escape(key)}"]`);
+      if(source){[...source.querySelectorAll('mark.user-highlight')].forEach(unwrapMark);persistSource(key,source.innerHTML);showToast('Markierungen dieses Abschnitts gelöscht.');}
+    }
+    return;
+  }
+  const mark=e.target.closest('mark.user-highlight');
+  if(mark){const source=mark.closest('.sourceText[data-source-key]');if(source&&eraseModeKey===source.dataset.sourceKey){unwrapMark(mark);persistSource(source.dataset.sourceKey,source.innerHTML);showToast('Markierung entfernt.')}}
+});
+
+function ensureTaskSourceDock(page,task){
+  if(task.querySelector('.taskSourceDock'))return;
+  const original=page.querySelector('.textPaper .sourceText');
+  if(!original)return;
+  const key=sourceKeyForPage(page);
+  const dock=document.createElement('div');dock.className='taskSourceDock';
+  const head=document.createElement('div');head.className='dockHead';head.innerHTML=`<div class="dockTitle">Textabschnitt – bleibt beim Bearbeiten sichtbar</div><button type="button" class="btn secondary" data-dock-toggle>Einklappen</button>`;
+  dock.appendChild(head);dock.appendChild(buildMarkToolbar(key));
+  const scroll=document.createElement('div');scroll.className='dockText';
+  const src=document.createElement('div');src.className='sourceText';src.dataset.sourceKey=key;src.innerHTML=original.innerHTML;scroll.appendChild(src);dock.appendChild(scroll);
+  head.querySelector('[data-dock-toggle]').addEventListener('click',ev=>{dock.classList.toggle('collapsed');ev.currentTarget.textContent=dock.classList.contains('collapsed')?'Text öffnen':'Einklappen'});
+  task.insertBefore(dock,task.firstChild);
+}
+
+document.querySelectorAll('[data-reveal]').forEach(btn=>btn.addEventListener('click',()=>{
+  const page=btn.closest('.screen');
+  const task=document.getElementById(btn.dataset.reveal);
+  task.classList.add('show');
+  ensureTaskSourceDock(page,task);
+  btn.closest('.reading').style.display='none';
+  setTimeout(()=>task.scrollIntoView({behavior:'smooth',block:'start'}),50);
+}));
+// Die bisherigen Auf-/Zuklapp-Quellen werden durch den automatisch angehefteten Text ersetzt.
+document.querySelectorAll('[data-toggle-source]').forEach(btn=>btn.style.display='none');
+document.querySelectorAll('.choiceRow').forEach(row=>row.addEventListener('click',e=>{if(!e.target.classList.contains('choice'))return; [...row.querySelectorAll('.choice')].forEach(x=>x.classList.remove('selected')); e.target.classList.add('selected');}));
+
+// Archive modal (only unlocked/current text)
+const archiveModal=document.getElementById('archiveModal'), archiveBody=document.getElementById('archiveBody');
+document.getElementById('openArchive').addEventListener('click',()=>{
+  archiveBody.innerHTML='';
+  for(let i=0;i<=Math.min(unlocked,4);i++){
+    const read=pages[i].querySelector('.textPaper .sourceText'); if(!read) continue;
+    const sec=document.createElement('div'); sec.className='archiveSection'; sec.innerHTML=`<h3>${pageNames[i]}</h3><div class="sourceText">${read.innerHTML}</div>`; archiveBody.appendChild(sec);
+  }
+  archiveModal.classList.add('show');
+});
+document.getElementById('closeArchive').addEventListener('click',()=>archiveModal.classList.remove('show'));
+archiveModal.addEventListener('click',e=>{if(e.target===archiveModal)archiveModal.classList.remove('show')});
+
+// Page 1 order task
+const orderItems=[
+  {id:'a',text:'Das Wormser Edikt führt in einigen Ländern zu Verboten von Luthers Schriften und seiner Bibelübersetzung.',rank:1},
+  {id:'b',text:'Luther verfasst 1523 „Von weltlicher Obrigkeit, wie weit man ihr Gehorsam schuldig sei“.',rank:2},
+  {id:'c',text:'Luther fragt, wo die Grenze des Gehorsams gegenüber der Obrigkeit liegt.',rank:3}
+];
+let order=[...orderItems].sort(()=>Math.random()-.5); const orderTask=document.getElementById('orderTask');
+function renderOrder(){orderTask.innerHTML='';order.forEach((it,idx)=>{const d=document.createElement('div');d.className='statement';d.innerHTML=`<b>${idx+1}.</b> ${it.text}<div class="actions"><button class="choice" data-dir="up" ${idx===0?'disabled':''}>↑</button><button class="choice" data-dir="down" ${idx===order.length-1?'disabled':''}>↓</button></div>`;d.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{const j=idx+(btn.dataset.dir==='up'?-1:1);[order[idx],order[j]]=[order[j],order[idx]];renderOrder();}));orderTask.appendChild(d);});}
+renderOrder(); let orderOk=false;
+document.getElementById('checkOrder').addEventListener('click',()=>{orderOk=order.every((x,i)=>x.rank===i+1);const fb=document.getElementById('orderFb');fb.className='feedback show '+(orderOk?'good':'warn');fb.textContent=orderOk?'Richtig. Du hast Anlass, Schrift und Leitfrage sinnvoll geordnet.':'Noch nicht ganz. Prüfe noch einmal den zeitlichen Zusammenhang im Text.';});
+document.getElementById('finish0').addEventListener('click',()=>{
+  const choice=document.querySelector('#debateChoice .selected');
+  const reason=document.getElementById('debateReason').value.trim();
+  const missing=[];
+  if(!orderOk)missing.push('Lies den ersten Textabschnitt noch einmal und achte auf die Abfolge von Ausgangslage, Luthers Reaktion und der Frage seiner Schrift. Prüfe danach die Reihenfolge erneut.');
+  if(!choice)missing.push('Entscheide dich bei der Diskussionsfrage zunächst für eine Position.');
+  if(reason.length<20)missing.push('Ergänze zu deiner Position eine nachvollziehbare Begründung in 2–3 vollständigen Sätzen.');
+  let box=document.getElementById('finish0Req');
+  if(!box){box=document.createElement('div');box.id='finish0Req';box.className='feedback';document.getElementById('finish0').closest('.actions').after(box);}
+  if(missing.length){showRequirements(box,missing,'Bevor du Seite 1 abschließen kannst:');return;}
+  box.className='feedback';unlockNext(0);document.getElementById('unlock0').classList.add('show');setTimeout(()=>go(1),500);
+});
+
+// Page 2 sort terms
+const terms=[
+  {t:'Wort und Liebe',side:'geist'},{t:'Vergebung',side:'geist'},{t:'Glaube',side:'geist'},{t:'Evangelium',side:'geist'},
+  {t:'weltliche Macht',side:'welt'},{t:'Fürsten / Amtspersonen',side:'welt'},{t:'Schutz der Guten',side:'welt'},{t:'Bestrafung der Bösen',side:'welt'}
+];
+let selectedTerm=null, placed={geist:[],welt:[]}; const bank=document.getElementById('termBank');
+function renderBank(){bank.innerHTML='';terms.forEach((x,i)=>{if(placed.geist.includes(i)||placed.welt.includes(i))return;const b=document.createElement('button');b.className='chip'+(selectedTerm===i?' selected':'');b.textContent=x.t;b.addEventListener('click',()=>{selectedTerm=i;renderBank()});bank.appendChild(b);});document.getElementById('geistPlaced').innerHTML=placed.geist.map(i=>`<span class="tag">${terms[i].t}</span>`).join('');document.getElementById('weltPlaced').innerHTML=placed.welt.map(i=>`<span class="tag">${terms[i].t}</span>`).join('');}
+renderBank();document.querySelectorAll('[data-place]').forEach(btn=>btn.addEventListener('click',()=>{if(selectedTerm===null)return;placed[btn.dataset.place].push(selectedTerm);selectedTerm=null;renderBank();}));
+document.getElementById('checkTerms').addEventListener('click',()=>{
+  const all=terms.every((x,i)=>placed[x.side].includes(i));
+  const placedCount=placed.geist.length+placed.welt.length;
+  const wrong=terms.filter((x,i)=>(placed.geist.includes(i)&&x.side!=='geist')||(placed.welt.includes(i)&&x.side!=='welt')).length;
+  const goal=document.getElementById('commonGoal').value.toLowerCase();
+  const goalOk=goal.includes('reich')&&goal.includes('gott');
+  const fb=document.getElementById('termFb');const missing=[];
+  if(placedCount<terms.length)missing.push(`Es sind noch ${terms.length-placedCount} Begriffskarte(n) nicht zugeordnet. Prüfe, zu welchem Regiment sie nach dem Text gehören.`);
+  if(wrong>0)missing.push(`Überprüfe ${wrong} Zuordnung(en). Achte im Text darauf, mit welchen Mitteln die beiden Regimente wirken und welche Aufgaben sie jeweils haben.`);
+  if(!goalOk)missing.push('Der gemeinsame Kern ist noch nicht präzise genug. Lies den Satz unmittelbar vor der Erklärung des geistlichen und weltlichen Regiments erneut: Was verbindet beide?');
+  if(missing.length){showRequirements(fb,missing,'Bevor Seite 2 freigeschaltet wird:');return;}
+  fb.className='feedback show good';fb.textContent='Sehr gut: Die beiden Regimente unterscheiden sich in ihren Mitteln, stehen aber beide im Dienst des Reiches Gottes.';unlockNext(1);document.getElementById('unlock1').classList.add('show');setTimeout(()=>go(2),500);
+});
+
+// Page 3 statements
+const christQs=[
+  {s:'Christen gehören ausschließlich zum geistlichen Regiment.',correct:'falsch',why:'Kliemann betont gerade, dass derselbe Christenmenschen in beiden Regimenten Aufgaben wahrnimmt.'},
+  {s:'Luther lehnt es ab, geistliches und weltliches Regiment auf zwei getrennte Personengruppen zu verteilen.',correct:'richtig',why:'Genau das sagt der Text ausdrücklich.'},
+  {s:'Der Glaube darf sich nach Luther grundsätzlich nicht politisch oder gesellschaftlich äußern.',correct:'falsch',why:'Der Text betont, dass Gläubige ihren Glauben auch im politischen und gesellschaftlichen Engagement bewähren.'}
+];
+let christAns={}; const cs=document.getElementById('christStatements');
+christQs.forEach((q,i)=>{const d=document.createElement('div');d.className='statement';d.innerHTML=`<b>${q.s}</b><div class="choiceRow"><button class="choice" data-v="richtig">richtig</button><button class="choice" data-v="falsch">falsch</button></div>`;d.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>{d.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');christAns[i]=b.dataset.v;}));cs.appendChild(d);});
+document.getElementById('finish2').addEventListener('click',()=>{
+  const txt=document.getElementById('simulAnswer').value.trim();const fb=document.getElementById('christFb');const missing=[];
+  const unanswered=christQs.filter((q,i)=>christAns[i]===undefined).length;const wrong=christQs.filter((q,i)=>christAns[i]!==undefined&&christAns[i]!==q.correct).length;
+  if(unanswered)missing.push(`Zu ${unanswered} Aussage(n) fehlt noch deine Entscheidung.`);
+  if(wrong)missing.push(`Prüfe ${wrong} Aussage(n) noch einmal. Suche besonders die Stelle, an der Kliemann erklärt, ob die beiden Regimente auf getrennte Personengruppen verteilt werden können.`);
+  if(txt.length<35)missing.push('Dein Rückbezug ist noch zu knapp. Nutze die Unterscheidung aus der letzten Stunde: Was gilt für den Menschen in sich selbst und was gilt für ihn im Verhältnis zu Gott?');
+  if(missing.length){showRequirements(fb,missing,'Bevor du Seite 3 abschließen kannst:');return;}
+  fb.className='feedback show good';fb.textContent='Richtig. Der Christ ist nicht nur „Christperson“, sondern zugleich „Weltperson“ und übernimmt in beiden Regimenten Aufgaben.';unlockNext(2);document.getElementById('unlock2').classList.add('show');setTimeout(()=>go(3),500);
+});
+
+// Page 4 cases
+const cases=[
+  {s:'Eine Regierung lässt prüfen, welche Maßnahmen die CO₂-Emissionen am wirksamsten senken.',best:'sach',exp:'Hier steht zunächst eine fachlich überprüfbare Sachanalyse im Vordergrund.'},
+  {s:'Eine Kirche begründet öffentlich, warum sie Menschenwürde als religiös-ethischen Maßstab versteht.',best:'wert',exp:'Hier steht eine Glaubens- bzw. Wertperspektive im Vordergrund.'},
+  {s:'Ein Parlament entscheidet über Sterbehilfe. Medizinische Fakten und ethische Grundüberzeugungen spielen eine Rolle.',best:'beides',exp:'Hier greifen Sachanalyse und ethische Wertung ineinander – genau diese Spannung beschreibt Kliemann.'}
+];
+let caseAns={}; const sc=document.getElementById('sachCases');
+cases.forEach((q,i)=>{const d=document.createElement('div');d.className='statement';d.innerHTML=`<b>${q.s}</b><div class="choiceRow"><button class="choice" data-v="sach">vor allem Sachfrage</button><button class="choice" data-v="wert">vor allem Glaubens-/Wertfrage</button><button class="choice" data-v="beides">beides</button></div>`;d.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>{d.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');caseAns[i]=b.dataset.v;}));sc.appendChild(d);});
+document.getElementById('finish3').addEventListener('click',()=>{
+  const sum=document.getElementById('sachSummary').value.trim();const fb=document.getElementById('sachFb');const missing=[];
+  const unanswered=cases.filter((q,i)=>caseAns[i]===undefined).length;const wrong=cases.filter((q,i)=>caseAns[i]!==undefined&&caseAns[i]!==q.best).length;
+  if(unanswered)missing.push(`Bei ${unanswered} Fall/Fällen fehlt noch deine Einordnung.`);
+  if(wrong)missing.push(`Überprüfe ${wrong} Zuordnung(en). Frage dich jeweils: Geht es vor allem um fachlich überprüfbare Sachfragen, um Glaubens-/Wertfragen oder um eine Verbindung beider Ebenen?`);
+  if(sum.length<35)missing.push('Deine Zusammenfassung ist noch zu knapp. Nenne sowohl die Rolle sachlicher Analyse als auch die Rolle von Glaubens- und Wertfragen.');
+  if(missing.length){showRequirements(fb,missing,'Bevor du Seite 4 abschließen kannst:');return;}
+  fb.className='feedback show good';fb.innerHTML='<b>Treffend:</b> Sachfragen müssen vernünftig und nachvollziehbar analysiert werden; Glaubens- und Wertfragen dürfen eine Rolle spielen, sollen aber nicht vorschnell mit der Sachanalyse vermischt werden.';unlockNext(3);document.getElementById('unlock3').classList.add('show');setTimeout(()=>go(4),500);
+});
+
+// Page 5 resistance flow
+const resItems=[
+  {q:'Grundsatz',opts:['Obrigkeit grundsätzlich gehorchen','jede Obrigkeit aktiv bekämpfen','Glaubensfragen entscheidet allein der Staat'],right:0},
+  {q:'Grenzüberschreitung',opts:['wenn die Obrigkeit in Glaubensfragen eingreift','wenn Steuern erhöht werden','wenn politische Entscheidungen unpopulär sind'],right:0},
+  {q:'1523',opts:['gewaltloser Widerstand des Wortes','bewaffneter Aufstand','kein Widerstand unter keinen Umständen'],right:0},
+  {q:'Spätere Texte',opts:['unter extremen Bedingungen erwägt Luther auch aktiven Widerstand','Luther verwirft jede Form von Widerstand für immer','Luther fordert generell Tyrannenmord'],right:0}
+];
+let resAns={}; const rf=document.getElementById('resistanceFlow');
+resItems.forEach((x,i)=>{const d=document.createElement('div');d.className='statement';d.innerHTML=`<b>${x.q}</b><div class="choiceRow">${x.opts.map((o,j)=>`<button class="choice" data-v="${j}">${o}</button>`).join('')}</div>`;d.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>{d.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');resAns[i]=+b.dataset.v;}));rf.appendChild(d);});
+document.getElementById('finish4').addEventListener('click',()=>{
+  const fb=document.getElementById('resFb');const missing=[];
+  const unanswered=resItems.filter((x,i)=>resAns[i]===undefined).length;const wrong=resItems.filter((x,i)=>resAns[i]!==undefined&&resAns[i]!==x.right).length;
+  if(unanswered)missing.push(`Bei ${unanswered} Schritt(en) des Entscheidungswegs fehlt noch deine Auswahl.`);
+  if(wrong)missing.push(`Überprüfe ${wrong} Antwort(en). Achte im Text auf drei Punkte: die grundsätzliche Haltung zur Obrigkeit, die Grenze ihrer Zuständigkeit und die Entwicklung von 1523 zu späteren Texten.`);
+  if(missing.length){showRequirements(fb,missing,'Bevor du Seite 5 abschließen kannst:');return;}
+  fb.className='feedback show good';fb.textContent='Richtig. Grundsätzlich Gehorsam – aber eine Grenze der Obrigkeit in Glaubensfragen; 1523 zunächst gewaltloser Widerstand des Wortes.';unlockNext(4);document.getElementById('unlock4').classList.add('show');setTimeout(()=>go(5),500);
+});
+
+// Board direct editing
+const boardPieces=[
+  {id:'mensch',text:'(Christen-)Mensch'}, {id:'weltperson',text:'Weltperson'}, {id:'christperson',text:'Christperson'},
+  {id:'weltreg',text:'Weltliches Regiment'}, {id:'geistreg',text:'Geistliches Regiment'},
+  {id:'dienst',text:'beide stehen im Dienste des Reiches Gottes'},
+  {id:'gesetze',text:'Die Politik benötigt Gesetze / weltliche Macht'},
+  {id:'liebe',text:'Im Reich Gottes herrschen Liebe und Friede / Gott regiert mit Wort und Liebe'},
+  {id:'grenze',text:'Die Regierung darf sich nicht in Glaubensfragen einmischen'},
+  {id:'engagement',text:'Glaube bewährt sich im politischen Engagement, ersetzt aber keine sachliche Analyse'}
+];
+let selectedPiece=null;const boardBank=document.getElementById('boardBank');
+function renderBoardBank(){boardBank.innerHTML='';boardPieces.forEach(p=>{const used=document.querySelector(`.slot[data-slot="${p.id}"]`)?.classList.contains('filled');if(used)return;const b=document.createElement('button');b.className='chip'+(selectedPiece===p.id?' selected':'');b.textContent=p.text;b.addEventListener('click',()=>{selectedPiece=p.id;renderBoardBank()});boardBank.appendChild(b);});}
+renderBoardBank();
+document.querySelectorAll('.slot').forEach(slot=>slot.addEventListener('click',()=>{
+  // Bereits gesetzte Karte antippen: zurück in die Auswahl.
+  if(!selectedPiece && slot.classList.contains('filled')){
+    slot.classList.remove('filled');
+    slot.textContent='hier einordnen';
+    renderBoardBank();
+    return;
+  }
+  if(!selectedPiece)return;
+  const piece=boardPieces.find(p=>p.id===selectedPiece);if(!piece)return;
+  if(slot.dataset.slot!==piece.id){
+    slot.classList.add('selected');
+    setTimeout(()=>slot.classList.remove('selected'),500);
+    return;
+  }
+  slot.textContent=piece.text;
+  slot.classList.add('filled');
+  selectedPiece=null;
+  renderBoardBank();
+}));
+document.getElementById('boardReset').addEventListener('click',()=>{
+  document.querySelectorAll('.slot').forEach(s=>{s.classList.remove('filled');s.textContent='hier einordnen'});
+  selectedPiece=null;renderBoardBank();document.getElementById('boardFb').className='feedback';
+});
+document.getElementById('showBoardHelp').addEventListener('click',()=>document.getElementById('boardHelp').classList.toggle('show'));
+document.getElementById('checkBoard').addEventListener('click',()=>{
+  const slots=[...document.querySelectorAll('.slot')];
+  const missingSlots=slots.filter(s=>!s.classList.contains('filled'));
+  const fb=document.getElementById('boardFb');
+  if(missingSlots.length){
+    const tips=[];
+    tips.push(`Im Schaubild sind noch ${missingSlots.length} Feld(er) frei.`);
+    if(missingSlots.some(s=>['mensch','weltperson','christperson'].includes(s.dataset.slot))) tips.push('Beginne oben: Welche Bezeichnung gehört ins Zentrum, und welche zwei Perspektiven auf diese Person folgen daraus?');
+    if(missingSlots.some(s=>['weltreg','geistreg'].includes(s.dataset.slot))) tips.push('Prüfe die beiden mittleren Hauptfelder: Welche zwei Regierweisen unterscheidet Luther?');
+    if(missingSlots.some(s=>['dienst','gesetze','liebe'].includes(s.dataset.slot))) tips.push('Achte auf Gemeinsamkeit und unterschiedliche Mittel der beiden Regimente.');
+    if(missingSlots.some(s=>['grenze','engagement'].includes(s.dataset.slot))) tips.push('Lies den Abschnitt zu Glaubensfragen, Sachfragen und den Grenzen staatlicher Macht noch einmal.');
+    showRequirements(fb,tips,'Das Tafelbild ist noch nicht vollständig:');
+    return;
+  }
+  fb.className='feedback show good';
+  fb.textContent='Das Tafelbild ist vollständig. Vergleiche jetzt noch einmal die Beziehungen zwischen den Bausteinen mit dem Text.';
+  unlockNext(5);document.getElementById('unlock5').classList.add('show');setTimeout(()=>go(6),600);
+});
+
+// Ergebnis-Sammlung für die Abgabe an Supabase
+function selectedText(selector){return document.querySelector(selector+' .selected')?.textContent?.trim()||''}
+function collectHighlights(){
+  const out={};
+  pages.forEach(page=>{const key=sourceKeyForPage(page);const src=page.querySelector('.textPaper .sourceText[data-source-key]');if(!src)return;out[key]=[...src.querySelectorAll('mark.user-highlight')].map(m=>({text:m.textContent.trim(),color:[...m.classList].find(c=>c.startsWith('hl-'))||'hl-yellow'}));});
+  return out;
+}
+function collectResults(){
+  const board={};document.querySelectorAll('.slot').forEach(s=>board[s.dataset.slot]={filled:s.classList.contains('filled'),text:s.textContent.trim()});
+  return {
+    lesson:'luther-zwei-regimente',
+    duration_seconds:Math.max(1,Math.round((Date.now()-startedAt)/1000)),
+    completed_pages:unlocked+1,
+    answers:{
+      kontext:{order:order.map(x=>x.id),order_correct:orderOk,position:selectedText('#debateChoice'),reason:document.getElementById('debateReason').value.trim()},
+      regimente:{geistlich:placed.geist.map(i=>terms[i].t),weltlich:placed.welt.map(i=>terms[i].t),common_goal:document.getElementById('commonGoal').value.trim()},
+      christ_in_beiden:{statements:christAns,simul:document.getElementById('simulAnswer').value.trim()},
+      sach_und_glaubensfragen:{cases:caseAns,summary:document.getElementById('sachSummary').value.trim()},
+      widerstand:{flow:resAns},
+      tafelbild:board,
+      transfer:{topic:document.getElementById('topic').value,research:document.getElementById('research').value.trim(),analyse:document.getElementById('analyse').value.trim(),judgement:document.getElementById('judgement').value.trim()}
+    },
+    highlights:collectHighlights()
+  };
+}
+window.LutherApp={collectResults,getUnlocked:()=>unlocked};
+
+// reset
+document.getElementById('resetApp').addEventListener('click',()=>{if(confirm('Alle Eingaben und Freischaltungen zurücksetzen?'))location.reload();});
+})();
+</script>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const cfg=window.LUTHER_SUPABASE_CONFIG||{};
+const status=document.getElementById('submitStatus');
+const req=document.getElementById('submitRequirements');
+const submitBtn=document.getElementById('submitResults');
+let supabase=null;
+function setStatus(kind,msg){status.className='submitStatus show '+kind;status.textContent=msg;status.scrollIntoView({behavior:'smooth',block:'center'});}
+function showSubmitRequirements(items){req.classList.add('show');req.innerHTML=`<strong>Bevor du abgeben kannst:</strong><ul>${items.map(x=>`<li>${x}</li>`).join('')}</ul>`;req.scrollIntoView({behavior:'smooth',block:'center'});}
+function isConfigured(){return cfg.url&&cfg.publishableKey&&!cfg.url.includes('DEIN-PROJEKT')&&!cfg.publishableKey.includes('DEIN-PUBLISHABLE');}
+if(isConfigured()){supabase=createClient(cfg.url,cfg.publishableKey);}
+else{setStatus('warn','Supabase ist in dieser Vorschau noch nicht konfiguriert. Die Unterrichtsseite funktioniert vollständig; für die Abgabe müssen in supabase_config.js Projekt-URL und Publishable Key eingetragen werden.');}
+submitBtn.addEventListener('click',async()=>{
+  req.classList.remove('show');status.className='submitStatus';
+  const name=document.getElementById('studentName').value.trim();const cls=document.getElementById('className').value.trim();
+  const r=window.LutherApp?.collectResults();const t=r?.answers?.transfer||{};const missing=[];
+  if(!name)missing.push('Trage deinen Namen ein.');
+  if(!cls)missing.push('Trage deinen Kurs bzw. deine Lerngruppe ein.');
+  if(!t.topic||t.topic==='Bitte wählen …')missing.push('Wähle beim Gegenwartsbezug einen Streitfall aus.');
+  if((t.research||'').length<20)missing.push('Notiere bei der Recherche Position, Begründung und Quelle.');
+  if((t.analyse||'').length<25)missing.push('Analysiere Sachfragen und Glaubens-/Wertfragen des Falls.');
+  if((t.judgement||'').length<25)missing.push('Formuliere ein begründetes Urteil dazu, ob Luthers Unterscheidung weiterhilft oder an Grenzen stößt.');
+  if((window.LutherApp?.getUnlocked?.()??0)<6)missing.push('Bearbeite zuerst alle vorherigen Seiten einschließlich des Tafelbilds.');
+  if(missing.length){showSubmitRequirements(missing);return;}
+  if(!supabase){setStatus('bad','Abgabe noch nicht möglich: Supabase ist nicht konfiguriert.');return;}
+  submitBtn.disabled=true;submitBtn.textContent='Wird abgegeben …';
+  const payload={lesson_key:'luther-zwei-regimente',student_name:name,class_name:cls,duration_seconds:r.duration_seconds,completed_pages:r.completed_pages,answers:r.answers,highlights:r.highlights};
+  const {error}=await supabase.from('luther_submissions').insert(payload);
+  if(error){console.error(error);setStatus('bad','Die Abgabe hat nicht funktioniert. Prüfe die Internetverbindung und versuche es erneut.');submitBtn.disabled=false;submitBtn.textContent='Ergebnisse verbindlich abgeben';return;}
+  setStatus('good','Abgegeben. Deine Ergebnisse wurden gespeichert und können jetzt von der Lehrkraft eingesehen werden.');submitBtn.textContent='Erfolgreich abgegeben';
+});
+</script>
+</body>
+</html>

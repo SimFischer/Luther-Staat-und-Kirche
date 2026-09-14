@@ -1,0 +1,11 @@
+Supabase configuration
+
+Replace the two placeholders below with your Supabase project values.
+
+SUPABASE_URL=PASTE_YOUR_SUPABASE_PROJECT_URL_HERE
+SUPABASE_ANON_KEY=PASTE_YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY_HERE
+
+Important:
+- Use the public Project URL.
+- Use only the Publishable/Anon Key.
+- Never use the Service Role Key in frontend files.

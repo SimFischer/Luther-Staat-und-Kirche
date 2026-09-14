@@ -18,6 +18,6 @@
    ===================================================================== */
 
 window.SUPABASE_CONFIG = {
-  url:     "",
-  anonKey: ""
+  url:     "https://deinprojekt.supabase.co",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
 };

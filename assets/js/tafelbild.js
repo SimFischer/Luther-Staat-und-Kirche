@@ -1,6 +1,5 @@
 /* Interaktives Tafelbild: Bausteine per Tippen oder Ziehen einordnen.
-   Verbindungslinien werden aus den tatsächlichen Feldpositionen berechnet,
-   deshalb überlagern sich Texte in keiner Bildschirmgröße. */
+   Die Verbindungslinien werden aus den Feldpositionen berechnet. */
 (function () {
   "use strict";
 

@@ -285,8 +285,10 @@
     h += '<button type="button" class="knopf warn abstand" data-reset="1">Arbeit zurücksetzen</button>';
     h += "</div>";
 
-    h += '<div class="fuss"><p>Quellentext: ' + esc(window.KLIEMANN_TEXT.autor) + ", „" +
-         esc(window.KLIEMANN_TEXT.titel) + "“. Der Wortlaut ist unverändert wiedergegeben.</p></div>";
+    h += sicherungHtml(!!s.abgabe);
+
+    h += '<div class="fuss"><p>' + esc(window.KLIEMANN_TEXT.autor) + ", „" +
+         esc(window.KLIEMANN_TEXT.titel) + "“</p></div>";
 
     elInhalt.innerHTML = h;
     elMeldung = document.getElementById("meldung");
@@ -297,6 +299,112 @@
     }
     if (s.abgabe) abgabeVerdrahten();
     zeichneKopf();
+  }
+
+  function personFelder() {
+    var p = state.person || {};
+    return '<div class="feldgruppe drei">' +
+      '<label class="feld"><span>Vorname</span><input type="text" data-person="vorname" autocomplete="given-name" value="' + esc(p.vorname || "") + '"></label>' +
+      '<label class="feld"><span>Nachname</span><input type="text" data-person="nachname" autocomplete="family-name" value="' + esc(p.nachname || "") + '"></label>' +
+      '<label class="feld"><span>Kurs / Klasse</span><input type="text" data-person="kurs" placeholder="z. B. Q1 ev. Religion" value="' + esc(p.kurs || "") + '"></label>' +
+      "</div>";
+  }
+
+  function sicherungHtml(aufAbgabeseite) {
+    var h = '<section class="karte sicherung"><h2>Arbeit sichern und fortsetzen</h2>' +
+      '<p class="zusatz">Wenn du in der Stunde nicht fertig wirst: Zwischenstand herunterladen und beim nächsten Mal wieder hochladen. Auf diesem Gerät bleibt dein Stand ohnehin gespeichert.</p>';
+    if (!aufAbgabeseite) h += personFelder();
+    h += '<div class="knopfzeile">' +
+      '<button type="button" class="knopf stumm" data-sichern="datei">Zwischenstand herunterladen</button>' +
+      '<label class="knopf stumm dateiwahl">Zwischenstand hochladen' +
+      '<input type="file" accept=".json,application/json" data-laden="1" hidden></label>';
+    if (window.SB.istKonfiguriert() && !state.abgabe) {
+      h += '<button type="button" class="knopf stumm" data-sichern="online">Zwischenstand an die Lehrkraft senden</button>';
+    }
+    h += '</div><div id="sicherungMeldung"></div></section>';
+    return h;
+  }
+
+  function sicherungMeldung(art, text) {
+    var z = document.getElementById("sicherungMeldung");
+    if (z) z.innerHTML = '<div class="meldung ' + art + '"><p>' + esc(text) + "</p></div>";
+  }
+
+  function dateiName() {
+    var p = state.person || {};
+    var teil = ((p.nachname || "") + "_" + (p.vorname || "")).replace(/[^A-Za-zÄÖÜäöüß0-9_-]/g, "");
+    var d = new Date(), z = function (n) { return (n < 10 ? "0" : "") + n; };
+    return "Luther_Zwischenstand" + (teil.length > 1 ? "_" + teil : "") + "_" +
+      d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + ".json";
+  }
+
+  function alsDatei() {
+    var paket = { typ: "luther-zwischenstand", version: 1, gespeichertAm: new Date().toISOString(), stand: state };
+    var blob = new Blob([JSON.stringify(paket, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = dateiName();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    sicherungMeldung("gut", "Der Zwischenstand wurde als Datei " + dateiName() + " gespeichert. Bewahre sie auf und lade sie beim nächsten Mal hier wieder hoch.");
+  }
+
+  function ausDatei(datei) {
+    var leser = new FileReader();
+    leser.onload = function () {
+      var paket;
+      try { paket = JSON.parse(leser.result); } catch (e) { paket = null; }
+      if (!paket || paket.typ !== "luther-zwischenstand" || !paket.stand) {
+        sicherungMeldung("fehler", "Diese Datei ist kein Zwischenstand dieser Lernanwendung.");
+        return;
+      }
+      if (!window.confirm("Zwischenstand vom " +
+          new Date(paket.gespeichertAm).toLocaleString("de-DE") +
+          " laden?\n\nDer Stand auf diesem Gerät wird dabei ersetzt.")) return;
+      var neu = window.Speicher.leer();
+      Object.keys(neu).forEach(function (k) { if (paket.stand[k] !== undefined) neu[k] = paket.stand[k]; });
+      if (!Array.isArray(neu.freigeschaltet) || !neu.freigeschaltet.length) neu.freigeschaltet = [0];
+      state = neu;
+      window.Speicher.sofortSichern(state);
+      var ziel = Math.min(state.aktuelleSeite || 0, SEITEN.length - 1);
+      if (!frei(ziel)) ziel = 0;
+      zeichneSeite(ziel);
+      sicherungMeldung("gut", "Der Zwischenstand wurde geladen. Du kannst dort weiterarbeiten, wo du aufgehört hast.");
+    };
+    leser.onerror = function () { sicherungMeldung("fehler", "Die Datei konnte nicht gelesen werden."); };
+    leser.readAsText(datei);
+  }
+
+  var onlineLaeuft = false;
+
+  function anLehrkraft() {
+    var p = state.person || {};
+    var fehlt = [];
+    if (!(p.vorname || "").trim()) fehlt.push("Vorname");
+    if (!(p.nachname || "").trim()) fehlt.push("Nachname");
+    if (!(p.kurs || "").trim()) fehlt.push("Kurs / Klasse");
+    if (fehlt.length) {
+      sicherungMeldung("fehler", "Dafür fehlt noch: " + fehlt.join(", ") + ".");
+      return;
+    }
+    if (onlineLaeuft) return;
+    if (!window.confirm("Zwischenstand an die Lehrkraft senden?\n\nDas ist noch keine verbindliche Abgabe; du kannst danach weiterarbeiten.")) return;
+    onlineLaeuft = true;
+    sicherungMeldung("info", "Zwischenstand wird gesendet …");
+    var daten = sammleAbgabe(p.vorname.trim(), p.nachname.trim(), p.kurs.trim(), "zwischenstand");
+    window.SB.hole().then(function (sb) {
+      return sb.from(window.SB.TABELLE).insert(daten);
+    }).then(function (res) {
+      if (res && res.error) throw res.error;
+      onlineLaeuft = false;
+      state.letzterZwischenstand = daten.abgegeben_am;
+      speichern();
+      sicherungMeldung("gut", "Der Zwischenstand liegt jetzt bei deiner Lehrkraft. Du kannst weiterarbeiten.");
+    }).catch(function (err) {
+      onlineLaeuft = false;
+      sicherungMeldung("fehler", "Das Senden hat nicht geklappt: " +
+        String(err && err.message ? err.message : err) + " Nutze solange den Download.");
+    });
   }
 
   function startInhalt() {
@@ -322,6 +430,11 @@
       }
       if (ev.target.closest("[data-weiter]")) { weiter(); return; }
       if (ev.target.closest("[data-drucken]")) { window.print(); return; }
+      var sich = ev.target.closest("[data-sichern]");
+      if (sich) {
+        if (sich.dataset.sichern === "datei") alsDatei(); else anLehrkraft();
+        return;
+      }
       if (ev.target.closest("[data-reset]")) { zuruecksetzen(); return; }
 
       var chip = ev.target.closest("[data-chip]");
@@ -364,7 +477,13 @@
     });
 
     document.addEventListener("change", function (ev) {
-      var el = ev.target, ziel = el.dataset ? el.dataset.ziel : null;
+      var el = ev.target;
+      if (el.dataset && el.dataset.laden && el.files && el.files[0]) {
+        ausDatei(el.files[0]);
+        el.value = "";
+        return;
+      }
+      var ziel = el.dataset ? el.dataset.ziel : null;
       if (!ziel) return;
       var typ = el.dataset.typ;
       if (typ === "mc") setAnt(ziel, +el.value);
@@ -386,7 +505,14 @@
     });
 
     document.addEventListener("input", function (ev) {
-      var el = ev.target, ziel = el.dataset ? el.dataset.ziel : null;
+      var el = ev.target;
+      if (el.dataset && el.dataset.person) {
+        if (!state.person) state.person = { vorname: "", nachname: "", kurs: "" };
+        state.person[el.dataset.person] = el.value;
+        speichern();
+        return;
+      }
+      var ziel = el.dataset ? el.dataset.ziel : null;
       if (!ziel) return;
       var typ = el.dataset.typ;
       if (typ === "text") { setAnt(ziel, el.value); zaehlerAn(ziel, el.value); }
@@ -466,11 +592,7 @@
     } else {
       h += '<div class="meldung gut" style="margin-top:0"><p>Alle Pflichtbereiche sind bearbeitet.</p></div>';
     }
-    h += '<div class="feldgruppe drei">' +
-      '<label class="feld"><span>Vorname</span><input type="text" id="fVorname" autocomplete="given-name"></label>' +
-      '<label class="feld"><span>Nachname</span><input type="text" id="fNachname" autocomplete="family-name"></label>' +
-      '<label class="feld"><span>Kurs / Klasse</span><input type="text" id="fKurs" placeholder="z. B. Q1 ev. Religion"></label>' +
-      "</div>";
+    h += personFelder();
     h += '<div id="abgabeMeldung"></div>';
     h += '<div class="knopfzeile"><button type="button" class="knopf" id="btnAbgabe">Arbeit verbindlich abgeben</button>' +
       '<button type="button" class="knopf stumm" data-drucken="1">Übersicht drucken</button></div>';
@@ -481,13 +603,14 @@
     return h + "</section>";
   }
 
-  function sammleAbgabe(vorname, nachname, kurs) {
+  function sammleAbgabe(vorname, nachname, kurs, art) {
     var recherche = {};
     ["t0", "t1", "t2", "t3", "t4", "t5"].forEach(function (k) { if (ant(k) !== undefined) recherche[k] = ant(k); });
     var abgeschlossen = 0;
     for (var i = 1; i < SEITEN.length - 1; i++) if (seiteFertig(i)) abgeschlossen++;
     return {
       vorname: vorname, nachname: nachname, kurs: kurs,
+      art: art || "abgabe",
       abgegeben_am: new Date().toISOString(),
       dauer_sekunden: Math.round(state.aktiveSekunden || 0),
       fortschritt: {
@@ -524,9 +647,10 @@
 
     btn.addEventListener("click", function () {
       if (abgabeLaeuft || state.abgabe) return;
-      var vorname = (document.getElementById("fVorname").value || "").trim();
-      var nachname = (document.getElementById("fNachname").value || "").trim();
-      var kurs = (document.getElementById("fKurs").value || "").trim();
+      var p = state.person || {};
+      var vorname = (p.vorname || "").trim();
+      var nachname = (p.nachname || "").trim();
+      var kurs = (p.kurs || "").trim();
 
       var fehlt = [];
       if (!vorname) fehlt.push("Dein Vorname fehlt.");
@@ -545,7 +669,7 @@
       abgabeLaeuft = true;
       btn.disabled = true;
       btn.textContent = "Wird abgegeben …";
-      var daten = sammleAbgabe(vorname, nachname, kurs);
+      var daten = sammleAbgabe(vorname, nachname, kurs, "abgabe");
 
       function fertig(online, info) {
         state.abgabe = { vorname: vorname, nachname: nachname, kurs: kurs, abgegebenAm: daten.abgegeben_am, online: online };

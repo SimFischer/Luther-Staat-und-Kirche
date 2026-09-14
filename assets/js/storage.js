@@ -1,5 +1,4 @@
-/* Lokale Zwischenspeicherung des Arbeitsstandes (localStorage).
-   Ziel: ein versehentliches Neuladen darf möglichst wenig Arbeit zerstören. */
+/* Lokale Zwischenspeicherung des Arbeitsstandes (localStorage). */
 (function () {
   "use strict";
   var SCHLUESSEL = "luther-staat-kirche-q1.v1";
@@ -14,6 +13,7 @@
       antworten: {},     // Aufgaben-Id -> Antwortwert
       markierungen: {},  // Abschnitts-Id -> Liste von Markierungen
       tafelbild: {},     // Feld-Id -> Baustein-Id
+      person: { vorname: "", nachname: "", kurs: "" },
       abgabe: null
     };
   }

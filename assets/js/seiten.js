@@ -1,7 +1,4 @@
-/* Didaktische Struktur der Lernanwendung.
-   Reihenfolge, Aufgaben, Rückmeldungen und gestufte Hinweise.
-   Hinweise benennen, WAS fehlt, und verweisen auf die Textstelle –
-   sie nennen nie die Lösung. */
+/* Lernschritte, Aufgaben, Rückmeldungen und Hinweise. */
 window.SEITEN = [
 
 /* ---------------------------------------------------------------- 0 */

@@ -8,7 +8,7 @@
   var kontoZeile = document.getElementById("kontoZeile");
   var btnAbmelden = document.getElementById("btnAbmelden");
   var sb = null, abgaben = [], ausgewaehlt = null;
-  var filter = { suche: "", kurs: "", sortierung: "neu" };
+  var filter = { suche: "", kurs: "", sortierung: "neu", art: "abgabe" };
 
   function meldung(art, titel, text) {
     return '<div class="meldung ' + art + '">' + (titel ? "<h3>" + esc(titel) + "</h3>" : "") +
@@ -116,6 +116,7 @@
       var name = ((a.vorname || "") + " " + (a.nachname || "")).toLowerCase();
       if (s && name.indexOf(s) < 0) return false;
       if (filter.kurs && a.kurs !== filter.kurs) return false;
+      if (filter.art && (a.art || "abgabe") !== filter.art) return false;
       return true;
     });
     liste.sort(function (a, b) {
@@ -135,8 +136,9 @@
 
     bereich.innerHTML =
       '<div class="seiten-kopf"><p class="kapitel">Übersicht</p><h1>Schülerabgaben</h1>' +
-      '<p class="lead">' + abgaben.length + " Abgabe" + (abgaben.length === 1 ? "" : "n") +
-      " insgesamt, " + liste.length + " nach aktuellem Filter.</p></div>" +
+      '<p class="lead">' + abgaben.filter(function (a) { return (a.art || "abgabe") === "abgabe"; }).length +
+      " verbindliche Abgabe(n), " + abgaben.filter(function (a) { return a.art === "zwischenstand"; }).length +
+      " Zwischenstand/Zwischenstände. " + liste.length + " Einträge nach aktuellem Filter.</p></div>" +
       '<div class="lehrer-raster">' +
         "<div>" +
           '<div class="werkzeuge">' +
@@ -145,6 +147,11 @@
               kurse.map(function (k) {
                 return '<option value="' + esc(k) + '"' + (filter.kurs === k ? " selected" : "") + ">" + esc(k) + "</option>";
               }).join("") + "</select>" +
+            '<select id="fArt">' +
+              '<option value="abgabe"' + (filter.art === "abgabe" ? " selected" : "") + ">Nur Abgaben</option>" +
+              '<option value="zwischenstand"' + (filter.art === "zwischenstand" ? " selected" : "") + ">Nur Zwischenstände</option>" +
+              '<option value=""' + (filter.art === "" ? " selected" : "") + ">Abgaben und Zwischenstände</option>" +
+            "</select>" +
             '<select id="fSort">' +
               '<option value="neu"' + (filter.sortierung === "neu" ? " selected" : "") + ">Neueste zuerst</option>" +
               '<option value="alt"' + (filter.sortierung === "alt" ? " selected" : "") + ">Älteste zuerst</option>" +
@@ -155,8 +162,10 @@
             return '<li><button type="button" data-id="' + esc(a.id) + '"' +
               (ausgewaehlt === a.id ? ' class="aktiv"' : "") + ">" +
               "<strong>" + esc((a.nachname || "") + ", " + (a.vorname || "")) + "</strong> " +
-              '<span class="merker ' + (a.vollstaendig ? "voll" : "teil") + '">' +
-              (a.vollstaendig ? "vollständig" : "unvollständig") + "</span>" +
+              ((a.art || "abgabe") === "zwischenstand"
+                ? '<span class="merker zwischen">Zwischenstand</span>'
+                : '<span class="merker ' + (a.vollstaendig ? "voll" : "teil") + '">' +
+                  (a.vollstaendig ? "vollständig" : "unvollständig") + "</span>") +
               '<span class="zeile2">' + esc(a.kurs || "") + " · " +
               new Date(a.abgegeben_am).toLocaleString("de-DE") + "</span></button></li>";
           }).join("") : '<li><div style="padding:.8rem" class="zusatz">Keine Abgaben gefunden.</div></li>') + "</ul>" +
@@ -167,6 +176,7 @@
 
     document.getElementById("fSuche").addEventListener("input", function (e) { filter.suche = e.target.value; zeichne(); });
     document.getElementById("fKurs").addEventListener("change", function (e) { filter.kurs = e.target.value; zeichne(); });
+    document.getElementById("fArt").addEventListener("change", function (e) { filter.art = e.target.value; zeichne(); });
     document.getElementById("fSort").addEventListener("change", function (e) { filter.sortierung = e.target.value; zeichne(); });
     document.getElementById("btnNeu").addEventListener("click", laden);
     bereich.querySelectorAll("[data-id]").forEach(function (b) {
@@ -231,8 +241,10 @@
     var h = '<section class="karte detail">' +
       "<h1>" + esc(a.vorname + " " + a.nachname) + "</h1>" +
       '<table class="tabelle"><tbody>' +
+      "<tr><th>Art</th><td>" + ((a.art || "abgabe") === "zwischenstand"
+        ? "Zwischenstand während der Bearbeitung" : "Verbindliche Abgabe") + "</td></tr>" +
       "<tr><th>Kurs / Klasse</th><td>" + esc(a.kurs || "") + "</td></tr>" +
-      "<tr><th>Abgegeben am</th><td>" + new Date(a.abgegeben_am).toLocaleString("de-DE") + "</td></tr>" +
+      "<tr><th>Gesendet am</th><td>" + new Date(a.abgegeben_am).toLocaleString("de-DE") + "</td></tr>" +
       "<tr><th>Bearbeitungsstatus</th><td>" + (a.vollstaendig ? "vollständig" : "unvollständig") +
         (f.abgeschlossene_seiten !== undefined ? " (" + f.abgeschlossene_seiten + " von " + f.seiten_gesamt + " Lernschritten)" : "") + "</td></tr>" +
       "<tr><th>Bearbeitungsdauer</th><td>" + esc(dauer) + "</td></tr>" +

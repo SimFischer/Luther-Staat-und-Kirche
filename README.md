@@ -9,8 +9,8 @@ Die Anwendung läuft vollständig im Browser und ist ohne serverseitige
 Komponenten auf **GitHub Pages** lauffähig. Für die Abgabe und den
 Lehrerbereich wird optional **Supabase** genutzt.
 
-> „Von der Freiheit eines Christenmenschen“ ist bewusst **nicht** Gegenstand
-> dieser Einheit; das folgt in der nächsten Stunde.
+> „Von der Freiheit eines Christenmenschen“ ist **nicht** Gegenstand dieser
+> Einheit; das folgt in der nächsten Stunde.
 
 ---
 
@@ -40,23 +40,19 @@ Weitere Merkmale:
 * Bereits gelesene Abschnitte können jederzeit erneut geöffnet werden.
 * **Textmarkierungen** in Gelb, Grün, Blau und Rosa; einzeln oder
   abschnittsweise löschbar, dauerhaft gespeichert und Teil der Abgabe.
-* **Fehlermeldungen** benennen genau, was noch fehlt, und verweisen auf die
-  Textstelle – sie verraten nie die Lösung.
+* **Fehlermeldungen** benennen, was noch fehlt, und verweisen auf die Textstelle.
 * Der Arbeitsstand wird laufend lokal im Browser gesichert. Über
   „Arbeit zurücksetzen“ (mit doppelter Sicherheitsabfrage) lässt er sich löschen.
+* Unter jeder Seite steht der Bereich **Arbeit sichern und fortsetzen**
+  (siehe Abschnitt 2.1).
 * iPad-first: Touchflächen ab ca. 46 px, Hoch- und Querformat, Bedienung per
-  Finger, Apple Pencil oder Maus. Für Drag-and-drop gibt es überall eine
-  gleichwertige Tipp-Alternative.
+  Finger, Apple Pencil oder Maus. Drag-and-drop hat überall eine Tipp-Alternative.
 
-### Der Originaltext
+### Der Quellentext
 
-Der Wortlaut in `assets/js/text-kliemann.js` ist **unverändert**. Er wurde
-ausschließlich in Abschnitte gegliedert; die Silbentrennung am Zeilenende der
-Vorlage wurde aufgelöst. Die Zeilenzählung der Vorlage (Z. 1–132) ist erhalten
-und wird in der Anwendung angezeigt.
-
-Bitte ergänze in dieser Datei im Feld `quelle` die vollständige
-bibliographische Angabe.
+Der Text steht in `assets/js/text-kliemann.js`, gegliedert in fünf Abschnitte.
+Die Zeilenzählung der Vorlage (Z. 1–132) ist erhalten und wird in der Anwendung
+angezeigt. Im Feld `quelle` bitte die bibliographische Angabe ergänzen.
 
 ---
 
@@ -73,6 +69,23 @@ Ohne Supabase-Konfiguration funktioniert die gesamte Lernanwendung uneingeschrä
 Lediglich bei der Abgabe erscheint der Hinweis „Die Online-Abgabe ist noch nicht
 eingerichtet.“; die Arbeit wird dann nur lokal gesichert und kann ausgedruckt werden.
 
+### 2.1 Arbeit sichern und fortsetzen
+
+Unter jeder Seite steht ein Bereich für den Fall, dass eine Stunde nicht reicht:
+
+* **Zwischenstand herunterladen** – speichert den gesamten Stand als
+  JSON-Datei (Antworten, Markierungen, Tafelbild, Fortschritt, Name und Kurs).
+* **Zwischenstand hochladen** – lädt eine solche Datei nach Rückfrage wieder
+  ein, auch auf einem anderen Gerät. Die Arbeit geht dort weiter, wo sie
+  aufgehört hat.
+* **Zwischenstand an die Lehrkraft senden** – erscheint nur bei eingerichtetem
+  Supabase. Der Stand wird als Eintrag mit `art = 'zwischenstand'` gespeichert;
+  die Arbeit lässt sich danach normal fortsetzen. Das ersetzt nicht die
+  verbindliche Abgabe am Ende.
+
+Vorname, Nachname und Kurs werden in diesem Bereich einmal eingetragen und auf
+der Abgabeseite übernommen.
+
 ## 3. Lehrerseite starten
 
 ```
@@ -82,6 +95,13 @@ https://<benutzername>.github.io/<repository>/lehrer.html
 Die Seite verlangt eine Anmeldung über Supabase Auth **und** eine zusätzliche
 Freigabe in der Tabelle `public.lehrkraefte`. Ohne beides werden keine Daten
 angezeigt.
+
+Angezeigt werden Name, Kurs, Zeitpunkt, Bearbeitungsstatus und -dauer, alle
+Antworten der Lernseiten, Zuordnungen, Textmarkierungen, das erarbeitete
+Tafelbild, die Rechercheergebnisse und das Abschlussurteil. Über die Auswahl
+oben lässt sich zwischen verbindlichen Abgaben, Zwischenständen und beidem
+umschalten; dazu kommen Namenssuche, Kursfilter, Sortierung und eine
+Druckansicht der einzelnen Abgabe.
 
 ---
 
@@ -98,7 +118,11 @@ Damit entstehen die Tabellen `abgaben` und `lehrkraefte`, die Prüffunktion
 
 * Schülerinnen und Schüler dürfen **nur einfügen** – nicht lesen, ändern oder löschen.
 * Lesen dürfen ausschließlich angemeldete und freigeschaltete Lehrkräfte.
-* Für `UPDATE` und `DELETE` existiert bewusst keine Regel.
+* Für `UPDATE` und `DELETE` gibt es keine Regel.
+* Die Spalte `art` unterscheidet `zwischenstand` und `abgabe`.
+
+Die Datei lässt sich auch auf einem bereits eingerichteten Projekt erneut
+ausführen; die Spalte `art` wird dabei nachgetragen.
 
 ### 4.2 Die beiden Werte eintragen
 
@@ -149,7 +173,7 @@ Selbstregistrierung deaktivieren, damit sich niemand eigenständig ein Konto anl
 4. Nach ein bis zwei Minuten ist die Seite unter
    `https://<benutzername>.github.io/<repository>/` erreichbar.
 
-Die Datei `.nojekyll` sorgt dafür, dass alle Dateien unverändert ausgeliefert werden.
+Die Datei `.nojekyll` schaltet die Jekyll-Verarbeitung ab.
 
 > Hinweis zum Datenschutz: Eine über GitHub Pages veröffentlichte Seite ist
 > öffentlich erreichbar. Personenbezogene Daten liegen ausschließlich in
@@ -167,12 +191,12 @@ supabase_setup.sql             Tabellen, Funktion und RLS-Regeln
 assets/css/style.css           Gesamtes Design
 assets/js/supabase_config.js   >>> HIER Project URL und anon Key eintragen
 assets/js/supabase_client.js   Nachladen des Supabase-SDK, Schlüsselprüfung
-assets/js/text-kliemann.js     Originaltext, in Abschnitte gegliedert
+assets/js/text-kliemann.js     Quellentext, in Abschnitte gegliedert
 assets/js/seiten.js            Lernschritte, Aufgaben, Rückmeldungen, Hinweise
 assets/js/storage.js           Lokale Zwischenspeicherung
 assets/js/leser.js             Angeheftete Leseansicht und Textmarkierungen
 assets/js/tafelbild.js         Interaktives Tafelbild
-assets/js/app.js               Ablaufsteuerung, Prüfung, Abgabe
+assets/js/app.js               Ablaufsteuerung, Prüfung, Sicherung, Abgabe
 assets/js/lehrer.js            Anmeldung, Übersicht, Detail- und Druckansicht
 ```
 

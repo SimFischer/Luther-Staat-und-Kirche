@@ -1,6 +1,4 @@
-/* Schlanke Supabase-Anbindung ohne Build-Schritt.
-   Das SDK wird erst dann nachgeladen, wenn es gebraucht wird.
-   Fällt der Ladevorgang aus, bleibt die Lern-App uneingeschränkt nutzbar. */
+/* Supabase-Anbindung ohne Build-Schritt. Das SDK wird bei Bedarf nachgeladen. */
 (function () {
   "use strict";
   var SDK_URL = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm";
@@ -17,7 +15,7 @@
   }
 
   function warnungServiceKey() {
-    // Sicherheitsnetz: ein versehentlich eingetragener service_role-Key wird blockiert.
+    // Ein versehentlich eingetragener service_role-Key wird blockiert.
     var k = (cfg().anonKey || "");
     try {
       var teile = k.split(".");

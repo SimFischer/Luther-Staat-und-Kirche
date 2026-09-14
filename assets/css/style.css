@@ -234,6 +234,9 @@ select{
 .knopf.warn{ background:var(--karte); color:var(--rot); border-color:#d9b6b1; }
 .knopf:disabled{ opacity:.5; cursor:not-allowed; }
 .knopf.klein{ min-height:38px; padding:.35rem .75rem; font-size:.88rem; font-weight:500; }
+label.knopf.dateiwahl{ display:inline-flex; align-items:center; cursor:pointer; }
+.karte.sicherung{ background:var(--papier-tief); }
+.karte.sicherung h2{ font-size:1.12rem; }
 .abstand{ margin-left:auto; }
 
 /* ---------- Tafelbild ---------- */
@@ -314,6 +317,7 @@ label.feld > span{ display:block; margin-bottom:.25rem; font-weight:600; color:v
 .merker{ font-size:.72rem; border-radius:999px; padding:.1rem .5rem; border:1px solid; }
 .merker.voll{ color:var(--gruen); border-color:#b9d3c0; background:var(--gruen-zart); }
 .merker.teil{ color:#8a6a22; border-color:#e4d4a8; background:var(--gelb-zart); }
+.merker.zwischen{ color:var(--blau); border-color:#b7c7d8; background:var(--blau-zart); }
 .werkzeuge{ display:grid; gap:.5rem; margin-bottom:.8rem; }
 @media (min-width:640px){ .werkzeuge{ grid-template-columns:1fr 1fr 1fr; } }
 .detail h3{ margin-top:1.2rem; border-bottom:1px solid var(--linie-fein); padding-bottom:.25rem; }

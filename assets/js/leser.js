@@ -1,6 +1,5 @@
-/* Angeheftete Leseansicht des Originaltextes mit Textmarkierungen.
-   Markierungen werden als Zeichen-Offsets je Absatz gespeichert und
-   bleiben dadurch unabhängig vom HTML erhalten. */
+/* Angeheftete Leseansicht des Quellentextes mit Textmarkierungen.
+   Markierungen werden als Zeichen-Offsets je Absatz gespeichert. */
 (function () {
   "use strict";
 

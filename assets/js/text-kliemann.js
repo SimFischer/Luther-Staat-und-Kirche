@@ -1,21 +1,15 @@
 /* =====================================================================
-   ORIGINALTEXT  —  Peter Kliemann: "Luthers Verständnis von Kirche und Staat"
+   Quellentext: Peter Kliemann, "Luthers Verständnis von Kirche und Staat"
    ---------------------------------------------------------------------
-   Diese Datei enthält den Quellentext im ORIGINALWORTLAUT.
-   Er wurde ausschließlich in Abschnitte gegliedert; kein Wort wurde
-   verändert, gekürzt, vereinfacht oder umgestellt.
+   "von" / "bis" = Zeilennummern der Vorlage (M04, Z. 1-132).
+   Die Silbentrennung am Zeilenende der Vorlage ist aufgelöst.
 
-   "von" / "bis" = Zeilennummern der Originalvorlage (M04, Z. 1-132).
-   Die Silbentrennung am Zeilenende der Vorlage wurde aufgelöst
-   (z. B. "The-" + "ma" -> "Thema"); das ist reine Satzformatierung,
-   keine Textänderung.
-
-   BITTE HIER NUR DIE QUELLENANGABE ("quelle") ERGÄNZEN.
+   Bitte unten im Feld "quelle" die bibliographische Angabe ergänzen.
    ===================================================================== */
 window.KLIEMANN_TEXT = {
   "autor": "Peter Kliemann",
   "titel": "Luthers Verständnis von Kirche und Staat",
-  "quelle": "Peter Kliemann, Luthers Verständnis von Kirche und Staat (Material M04). Vollständige bibliographische Angabe bitte in dieser Datei ergänzen.",
+  "quelle": "Peter Kliemann, Luthers Verständnis von Kirche und Staat (Material M04).",
   "aufgabenImOriginal": [
     "Beschreibe die Situation, in der die Schrift geschrieben wurde.",
     "Erkläre die Begriffe weltliches und geistliches Regiment.",

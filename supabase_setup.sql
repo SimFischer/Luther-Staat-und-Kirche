@@ -7,7 +7,9 @@
 --
 --  Sicherheitsprinzip:
 --   * Schülerinnen und Schüler arbeiten anonym (anon key) und dürfen
---     ausschließlich NEUE Abgaben EINFÜGEN.
+--     ausschließlich NEUE Einträge EINFÜGEN – Zwischenstände während der
+--     Bearbeitung (art = 'zwischenstand') und die verbindliche Abgabe
+--     am Ende (art = 'abgabe').
 --   * Sie können keine Abgaben lesen, ändern oder löschen – auch die
 --     eigene nicht.
 --   * Lehrkräfte müssen angemeldet sein UND zusätzlich in der Tabelle
@@ -31,6 +33,7 @@ comment on table public.lehrkraefte is
 create table if not exists public.abgaben (
   id              uuid primary key default gen_random_uuid(),
   erstellt_am     timestamptz not null default now(),
+  art             text not null default 'abgabe',
   vorname         text not null,
   nachname        text not null,
   kurs            text not null,
@@ -44,6 +47,7 @@ create table if not exists public.abgaben (
   urteil          text,
   vollstaendig    boolean not null default false,
   client_id       text,
+  constraint abgaben_art_gueltig check (art in ('abgabe', 'zwischenstand')),
   constraint abgaben_pflichtfelder check (
     length(btrim(vorname))  > 0 and
     length(btrim(nachname)) > 0 and
@@ -51,7 +55,13 @@ create table if not exists public.abgaben (
   )
 );
 
+-- Nachrüstung für bereits bestehende Projekte
+alter table public.abgaben add column if not exists art text not null default 'abgabe';
+alter table public.abgaben drop constraint if exists abgaben_art_gueltig;
+alter table public.abgaben add constraint abgaben_art_gueltig check (art in ('abgabe', 'zwischenstand'));
+
 create index if not exists abgaben_zeit_idx on public.abgaben (abgegeben_am desc);
+create index if not exists abgaben_art_idx  on public.abgaben (art);
 create index if not exists abgaben_kurs_idx on public.abgaben (kurs);
 
 -- ---------------------------------------------------------------- 3
@@ -76,7 +86,7 @@ grant  execute on function public.ist_lehrkraft() to authenticated;
 alter table public.abgaben     enable row level security;
 alter table public.lehrkraefte enable row level security;
 
--- Rechte auf Tabellenebene bewusst eng fassen
+-- Rechte auf Tabellenebene eng fassen
 revoke all on public.abgaben     from anon, authenticated;
 revoke all on public.lehrkraefte from anon, authenticated;
 
@@ -98,7 +108,7 @@ create policy "lehrkraft liest abgaben"
   to authenticated
   using (public.ist_lehrkraft());
 
--- Kein UPDATE und kein DELETE: es existiert bewusst keine Policy dafür.
+-- Kein UPDATE und kein DELETE: dafür existiert keine Policy.
 
 -- Lehrkräfte sehen nur den eigenen Freigabeeintrag
 drop policy if exists "eigener freigabeeintrag" on public.lehrkraefte;

@@ -131,7 +131,7 @@
     if (!quelle) return;
     var kopie = quelle.cloneNode(true);
     kopie.querySelectorAll(".knopfzeile").forEach(function (k) { k.remove(); });
-    fetch("assets/css/style.css").then(function (res) { return res.ok ? res.text() : ""; })
+    fetch("assets/css/style.css?v=4").then(function (res) { return res.ok ? res.text() : ""; })
       .catch(function () { return ""; })
       .then(function (css) {
         var titel = a.vorname + " " + a.nachname + " – " + a.kurs;

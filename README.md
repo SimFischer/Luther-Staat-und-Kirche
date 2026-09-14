@@ -96,6 +96,10 @@ Die Seite verlangt eine Anmeldung über Supabase Auth **und** eine zusätzliche
 Freigabe in der Tabelle `public.lehrkraefte`. Ohne beides werden keine Daten
 angezeigt.
 
+Erreichbar ist die Seite über die Adresse oben oder über den kleinen Link
+**„Lehreransicht"** in der Fußzeile jeder Schülerseite; von dort führt
+„Zur Schüleransicht" wieder zurück.
+
 **Anmelden:** E-Mail und Passwort des im Supabase-Dashboard angelegten Kontos
 (siehe Abschnitt 4.3). Die Anmeldung bleibt auf dem Gerät bestehen, bis oben
 rechts „Abmelden“ gewählt wird. Ist ein Konto zwar angemeldet, aber nicht in
@@ -192,6 +196,18 @@ Selbstregistrierung deaktivieren, damit sich niemand eigenständig ein Konto anl
    `https://<benutzername>.github.io/<repository>/` erreichbar.
 
 Die Datei `.nojekyll` schaltet die Jekyll-Verarbeitung ab.
+
+### Zwischengespeicherte Dateien
+
+`index.html` und `lehrer.html` hängen an jeden Verweis auf CSS und JavaScript
+eine Versionsnummer an (`assets/js/app.js?v=4`). Dadurch holt jeder Browser nach
+einer Änderung automatisch die neue Datei.
+
+**Wichtig:** Wenn du eine Datei unter `assets/` änderst, zähle diese Nummer in
+beiden HTML-Dateien hoch (`?v=5`, `?v=6` …) – sonst behalten Geräte, die die
+Seite schon einmal geöffnet haben, unter Umständen den alten Stand. In
+`assets/js/lehrer.js` steht dieselbe Nummer noch einmal beim Laden des
+Stylesheets für den HTML-Export.
 
 > Hinweis zum Datenschutz: Eine über GitHub Pages veröffentlichte Seite ist
 > öffentlich erreichbar. Personenbezogene Daten liegen ausschließlich in

@@ -288,7 +288,8 @@
     h += sicherungHtml(!!s.abgabe);
 
     h += '<div class="fuss"><p>' + esc(window.KLIEMANN_TEXT.autor) + ", „" +
-         esc(window.KLIEMANN_TEXT.titel) + "“</p></div>";
+         esc(window.KLIEMANN_TEXT.titel) + "“</p>" +
+         '<p><a href="lehrer.html" class="fuss-link">Lehreransicht</a></p></div>';
 
     elInhalt.innerHTML = h;
     elMeldung = document.getElementById("meldung");

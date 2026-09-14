@@ -15,6 +15,136 @@
       "<p>" + esc(text) + "</p></div>";
   }
 
+  /* ---------------- Herunterladen ---------------- */
+  function speichereDatei(name, inhalt, typ) {
+    var blob = new Blob([inhalt], { type: typ + ";charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  }
+
+  function heute() {
+    var d = new Date(), z = function (n) { return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate());
+  }
+
+  function sauber(t) {
+    return String(t || "").replace(/[^A-Za-zÄÖÜäöüß0-9_-]+/g, "_").replace(/^_+|_+$/g, "");
+  }
+
+  /* Bewertet eine einzelne Aufgabe: true, false oder null (nicht prüfbar) */
+  function bewerte(a, wert) {
+    if (a.typ === "mc") return wert === undefined || wert === null ? false : wert === a.loesung;
+    if (a.typ === "multi") {
+      if (!Array.isArray(wert)) return false;
+      return a.loesung.slice().sort().join(",") === wert.slice().sort().join(",");
+    }
+    if (a.typ === "zuordnung") {
+      var w = wert || {};
+      return a.items.every(function (it) { return w[it.id] === it.korb; });
+    }
+    return null;
+  }
+
+  /* Spalten für die CSV-Übersicht, abgeleitet aus den Lernseiten */
+  function spalten() {
+    var sp = [
+      { kopf: "Nachname",    hole: function (a) { return a.nachname; } },
+      { kopf: "Vorname",     hole: function (a) { return a.vorname; } },
+      { kopf: "Kurs",        hole: function (a) { return a.kurs; } },
+      { kopf: "Art",         hole: function (a) { return (a.art || "abgabe") === "zwischenstand" ? "Zwischenstand" : "Abgabe"; } },
+      { kopf: "Gesendet am", hole: function (a) { return new Date(a.abgegeben_am).toLocaleString("de-DE"); } },
+      { kopf: "Vollständig", hole: function (a) { return a.vollstaendig ? "ja" : "nein"; } },
+      { kopf: "Lernschritte", hole: function (a) {
+          var f = a.fortschritt || {};
+          return f.abgeschlossene_seiten !== undefined ? f.abgeschlossene_seiten + " von " + f.seiten_gesamt : ""; } },
+      { kopf: "Dauer (min)", hole: function (a) { return a.dauer_sekunden ? Math.round(a.dauer_sekunden / 60) : ""; } }
+    ];
+
+    window.SEITEN.forEach(function (seite) {
+      var pruefbar = seite.aufgaben.filter(function (a) { return bewerte(a, undefined) !== null; });
+      if (pruefbar.length) {
+        sp.push({ kopf: seite.kapitel.replace("Lernschritt ", "LS ") + " richtig", hole: function (a) {
+          var w = a.antworten || {};
+          var n = pruefbar.filter(function (auf) { return bewerte(auf, w[auf.id]) === true; }).length;
+          return n + "/" + pruefbar.length;
+        } });
+      }
+      seite.aufgaben.forEach(function (auf) {
+        if (auf.typ === "text") {
+          sp.push({ kopf: auf.id + " " + kurz(auf.frage), hole: function (a) { return (a.antworten || {})[auf.id] || ""; } });
+        } else if (auf.typ === "position") {
+          sp.push({ kopf: auf.id + " Position", hole: function (a) {
+            var v = (a.antworten || {})[auf.id] || {};
+            return v.wahl !== undefined && v.wahl !== null ? auf.optionen[v.wahl] : ""; } });
+          sp.push({ kopf: auf.id + " Begründung", hole: function (a) {
+            return ((a.antworten || {})[auf.id] || {}).text || ""; } });
+        } else if (auf.typ === "auswahl") {
+          sp.push({ kopf: auf.id + " Thema", hole: function (a) {
+            return ((a.antworten || {})[auf.id] || {}).thema || ""; } });
+        } else if (auf.typ === "aussagen") {
+          auf.items.filter(function (it) { return it.begruendung; }).forEach(function (it) {
+            sp.push({ kopf: it.id + " Begründung", hole: function (a) {
+              return (((a.antworten || {})[auf.id] || {})[it.id] || {}).text || ""; } });
+          });
+        }
+      });
+    });
+    return sp;
+  }
+
+  function kurz(t) {
+    t = String(t).replace(/\s+/g, " ");
+    return t.length > 40 ? t.slice(0, 37) + "…" : t;
+  }
+
+  function csvFeld(w) {
+    return '"' + String(w === undefined || w === null ? "" : w).replace(/\r?\n/g, " / ").replace(/"/g, '""') + '"';
+  }
+
+  function alsCsv(liste) {
+    var sp = spalten();
+    var zeilen = [sp.map(function (c) { return csvFeld(c.kopf); }).join(";")];
+    liste.forEach(function (a) {
+      zeilen.push(sp.map(function (c) { return csvFeld(c.hole(a)); }).join(";"));
+    });
+    // BOM, damit Excel die Umlaute richtig liest
+    speichereDatei("Abgaben_" + heute() + ".csv", "\ufeff" + zeilen.join("\r\n"), "text/csv");
+  }
+
+  function alsJsonSammlung(liste) {
+    speichereDatei("Abgaben_" + heute() + ".json", JSON.stringify({
+      exportiertAm: new Date().toISOString(), anzahl: liste.length, abgaben: liste
+    }, null, 2), "application/json");
+  }
+
+  function alsJsonEinzeln(a) {
+    speichereDatei("Abgabe_" + sauber(a.nachname) + "_" + sauber(a.vorname) + "_" + heute() + ".json",
+      JSON.stringify(a, null, 2), "application/json");
+  }
+
+  /* Lesbare, druckbare Einzeldatei aus der bereits gerenderten Detailansicht */
+  function alsHtmlEinzeln(a) {
+    var quelle = document.getElementById("detail");
+    if (!quelle) return;
+    var kopie = quelle.cloneNode(true);
+    kopie.querySelectorAll(".knopfzeile").forEach(function (k) { k.remove(); });
+    fetch("assets/css/style.css").then(function (res) { return res.ok ? res.text() : ""; })
+      .catch(function () { return ""; })
+      .then(function (css) {
+        var titel = a.vorname + " " + a.nachname + " – " + a.kurs;
+        var doc = "<!DOCTYPE html>\n<html lang=\"de\"><head><meta charset=\"utf-8\">" +
+          '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+          "<title>" + esc(titel) + "</title><style>" + css +
+          "\n.kopf{display:none}.huelle{max-width:52rem;margin:0 auto;padding:1.5rem}</style></head><body>" +
+          '<main class="huelle">' + kopie.innerHTML + "</main></body></html>";
+        speichereDatei("Abgabe_" + sauber(a.nachname) + "_" + sauber(a.vorname) + "_" + heute() + ".html",
+          doc, "text/html");
+      });
+  }
+
   /* ---------------- Start ---------------- */
   function los() {
     if (!window.SB.istKonfiguriert()) {
@@ -40,40 +170,58 @@
   }
 
   /* ---------------- Anmeldung ---------------- */
-  function zeigeAnmeldung(fehler) {
+  function zeigeAnmeldung(fehler, email) {
     kontoZeile.textContent = "";
     btnAbmelden.hidden = true;
     bereich.innerHTML =
       '<section class="karte" style="max-width:34rem">' +
         "<h1>Anmeldung</h1>" +
-        '<p class="zusatz">Nur freigeschaltete Lehrkräfte erhalten Zugriff auf die Abgaben.</p>' +
+        '<p class="zusatz">Zugriff auf die Abgaben haben nur angemeldete und freigeschaltete Konten.</p>' +
         (fehler ? meldung("fehler", null, fehler) : "") +
         '<div class="feldgruppe">' +
-          '<label class="feld"><span>E-Mail</span><input type="text" id="lEmail" autocomplete="username" inputmode="email"></label>' +
-          '<label class="feld"><span>Passwort</span><input type="password" id="lPass" autocomplete="current-password"></label>' +
+          '<label class="feld"><span>E-Mail</span>' +
+            '<input type="email" id="lEmail" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" value="' +
+            esc(email || "") + '"></label>' +
+          '<label class="feld"><span>Passwort</span>' +
+            '<input type="password" id="lPass" autocomplete="current-password"></label>' +
         "</div>" +
         '<div class="knopfzeile"><button type="button" class="knopf" id="btnAnmelden">Anmelden</button></div>' +
+        '<p class="zusatz" style="margin-top:.9rem">Die Anmeldung bleibt auf diesem Gerät bestehen, bis du dich abmeldest. ' +
+        "Ein neues Konto legst du im Supabase-Dashboard an und schaltest es in der Tabelle <code>lehrkraefte</code> frei (siehe README).</p>" +
       "</section>";
 
     var btn = document.getElementById("btnAnmelden");
+    var fEmail = document.getElementById("lEmail");
+    var fPass = document.getElementById("lPass");
+
     function anmelden() {
-      var email = (document.getElementById("lEmail").value || "").trim();
-      var pass = document.getElementById("lPass").value || "";
-      if (!email || !pass) { zeigeAnmeldung("Bitte E-Mail und Passwort eingeben."); return; }
-      btn.disabled = true; btn.textContent = "Wird geprüft …";
-      sb.auth.signInWithPassword({ email: email, password: pass }).then(function (res) {
-        if (res.error) { zeigeAnmeldung("Anmeldung fehlgeschlagen: " + res.error.message); return; }
+      var e = (fEmail.value || "").trim();
+      var pw = fPass.value || "";
+      if (!e || !pw) { zeigeAnmeldung("Bitte E-Mail und Passwort eingeben.", e); return; }
+      btn.disabled = true; btn.textContent = "Wird geprüft \u2026";
+      sb.auth.signInWithPassword({ email: e, password: pw }).then(function (res) {
+        if (res.error) {
+          var t = String(res.error.message || "");
+          if (/invalid login/i.test(t)) t = "E-Mail oder Passwort stimmt nicht.";
+          else if (/not confirmed/i.test(t)) t = "Das Konto ist noch nicht bestätigt. Im Supabase-Dashboard unter Authentication \u2192 Users bestätigen.";
+          zeigeAnmeldung(t, e);
+          return;
+        }
         pruefeFreigabe();
+      }).catch(function (err) {
+        zeigeAnmeldung("Die Anmeldung konnte nicht durchgeführt werden: " + String(err && err.message ? err.message : err), e);
       });
     }
     btn.addEventListener("click", anmelden);
-    document.getElementById("lPass").addEventListener("keydown", function (e) {
-      if (e.key === "Enter") anmelden();
+    [fEmail, fPass].forEach(function (f) {
+      f.addEventListener("keydown", function (ev) { if (ev.key === "Enter") anmelden(); });
     });
+    (email ? fPass : fEmail).focus();
   }
 
   function abmelden() {
-    sb.auth.signOut().then(function () { zeigeAnmeldung(); });
+    if (!window.confirm("Vom Lehrerbereich abmelden?")) return;
+    sb.auth.signOut().then(function () { abgaben = []; ausgewaehlt = null; zeigeAnmeldung(); });
   }
   btnAbmelden.addEventListener("click", abmelden);
 
@@ -169,7 +317,13 @@
               '<span class="zeile2">' + esc(a.kurs || "") + " · " +
               new Date(a.abgegeben_am).toLocaleString("de-DE") + "</span></button></li>";
           }).join("") : '<li><div style="padding:.8rem" class="zusatz">Keine Abgaben gefunden.</div></li>') + "</ul>" +
-          '<div class="knopfzeile"><button type="button" class="knopf stumm klein" id="btnNeu">Neu laden</button></div>' +
+          '<div class="knopfzeile" style="gap:.4rem">' +
+            '<button type="button" class="knopf stumm klein" id="btnNeu">Neu laden</button>' +
+            '<button type="button" class="knopf stumm klein" id="btnCsv">Auswahl als CSV</button>' +
+            '<button type="button" class="knopf stumm klein" id="btnJson">Auswahl als JSON</button>' +
+          "</div>" +
+          '<p class="zusatz">CSV für die Tabellenkalkulation, JSON als vollständige Sicherung. ' +
+          "Heruntergeladen wird jeweils die aktuell gefilterte Auswahl.</p>" +
         "</div>" +
         '<div id="detail"><div class="karte zusatz">Wähle links eine Abgabe aus.</div></div>' +
       "</div>";
@@ -179,6 +333,16 @@
     document.getElementById("fArt").addEventListener("change", function (e) { filter.art = e.target.value; zeichne(); });
     document.getElementById("fSort").addEventListener("change", function (e) { filter.sortierung = e.target.value; zeichne(); });
     document.getElementById("btnNeu").addEventListener("click", laden);
+    document.getElementById("btnCsv").addEventListener("click", function () {
+      var l = gefiltert();
+      if (!l.length) { window.alert("Die aktuelle Auswahl ist leer."); return; }
+      alsCsv(l);
+    });
+    document.getElementById("btnJson").addEventListener("click", function () {
+      var l = gefiltert();
+      if (!l.length) { window.alert("Die aktuelle Auswahl ist leer."); return; }
+      alsJsonSammlung(l);
+    });
     bereich.querySelectorAll("[data-id]").forEach(function (b) {
       b.addEventListener("click", function () { ausgewaehlt = b.dataset.id; zeichne(); });
     });
@@ -249,7 +413,11 @@
         (f.abgeschlossene_seiten !== undefined ? " (" + f.abgeschlossene_seiten + " von " + f.seiten_gesamt + " Lernschritten)" : "") + "</td></tr>" +
       "<tr><th>Bearbeitungsdauer</th><td>" + esc(dauer) + "</td></tr>" +
       "</tbody></table>" +
-      '<div class="knopfzeile"><button type="button" class="knopf stumm klein" onclick="window.print()">Druckansicht</button></div>';
+      '<div class="knopfzeile" style="gap:.4rem">' +
+      '<button type="button" class="knopf stumm klein" data-tu="drucken">Druckansicht</button>' +
+      '<button type="button" class="knopf stumm klein" data-tu="html">Als HTML-Datei</button>' +
+      '<button type="button" class="knopf stumm klein" data-tu="json">Als JSON-Datei</button>' +
+      "</div>";
 
     window.SEITEN.forEach(function (s) {
       if (!s.aufgaben.length) return;
@@ -274,6 +442,14 @@
     ziel.innerHTML = h;
 
     window.Tafel.montieren(document.getElementById("detailTafel"), { tafelbild: a.tafelbild || {} }, null, true);
+
+    ziel.querySelectorAll("[data-tu]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (b.dataset.tu === "drucken") window.print();
+        else if (b.dataset.tu === "json") alsJsonEinzeln(a);
+        else setTimeout(function () { alsHtmlEinzeln(a); }, 60);
+      });
+    });
   }
 
   los();

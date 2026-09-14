@@ -170,13 +170,14 @@ a{ color:var(--blau); }
 .opt span{ flex:1; }
 
 /* Freitext */
-textarea, input[type=text]{
+textarea,
+input[type=text], input[type=email], input[type=password], input[type=search], input[type=number]{
   width:100%; font:inherit; color:inherit;
   background:var(--papier); border:1px solid var(--linie); border-radius:var(--r-s);
   padding:.6rem .7rem; min-height:var(--tap);
 }
 textarea{ min-height:7.5rem; resize:vertical; line-height:1.5; }
-textarea:focus, input[type=text]:focus, select:focus{ outline:2px solid var(--blau); outline-offset:1px; }
+textarea:focus, input:focus, select:focus{ outline:2px solid var(--blau); outline-offset:1px; }
 select{
   font:inherit; color:inherit; background:var(--papier);
   border:1px solid var(--linie); border-radius:var(--r-s);
@@ -305,7 +306,7 @@ label.feld > span{ display:block; margin-bottom:.25rem; font-weight:600; color:v
 
 /* ---------- Lehrerbereich ---------- */
 .lehrer-raster{ display:grid; gap:1rem; }
-@media (min-width:900px){ .lehrer-raster{ grid-template-columns:minmax(260px,340px) 1fr; align-items:start; } }
+@media (min-width:900px){ .lehrer-raster{ grid-template-columns:minmax(300px,390px) 1fr; align-items:start; } }
 .liste{ list-style:none; margin:0; padding:0; max-height:70vh; overflow:auto; border:1px solid var(--linie); border-radius:var(--r); background:var(--karte); }
 .liste li + li{ border-top:1px solid var(--linie-fein); }
 .liste button{
@@ -313,13 +314,14 @@ label.feld > span{ display:block; margin-bottom:.25rem; font-weight:600; color:v
   padding:.65rem .8rem; min-height:var(--tap); color:var(--tinte);
 }
 .liste button.aktiv{ background:var(--blau-zart); }
-.liste .zeile2{ font-size:.78rem; color:var(--tinte-zart); }
+.liste .zeile2{ display:block; margin-top:.15rem; font-size:.78rem; color:var(--tinte-zart); }
+.liste .merker{ margin-left:.4rem; white-space:nowrap; display:inline-block; }
 .merker{ font-size:.72rem; border-radius:999px; padding:.1rem .5rem; border:1px solid; }
 .merker.voll{ color:var(--gruen); border-color:#b9d3c0; background:var(--gruen-zart); }
 .merker.teil{ color:#8a6a22; border-color:#e4d4a8; background:var(--gelb-zart); }
 .merker.zwischen{ color:var(--blau); border-color:#b7c7d8; background:var(--blau-zart); }
-.werkzeuge{ display:grid; gap:.5rem; margin-bottom:.8rem; }
-@media (min-width:640px){ .werkzeuge{ grid-template-columns:1fr 1fr 1fr; } }
+.werkzeuge{ display:grid; gap:.5rem; margin-bottom:.8rem; grid-template-columns:1fr; }
+@media (min-width:520px){ .werkzeuge{ grid-template-columns:1fr 1fr; } }
 .detail h3{ margin-top:1.2rem; border-bottom:1px solid var(--linie-fein); padding-bottom:.25rem; }
 .antwort{ background:var(--papier); border-left:3px solid var(--linie); padding:.5rem .7rem; border-radius:0 var(--r-s) var(--r-s) 0; white-space:pre-wrap; margin:.35rem 0 .8rem; }
 .tafel-statisch{ font-family:var(--serif); }

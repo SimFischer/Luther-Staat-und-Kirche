@@ -96,12 +96,30 @@ Die Seite verlangt eine Anmeldung über Supabase Auth **und** eine zusätzliche
 Freigabe in der Tabelle `public.lehrkraefte`. Ohne beides werden keine Daten
 angezeigt.
 
-Angezeigt werden Name, Kurs, Zeitpunkt, Bearbeitungsstatus und -dauer, alle
-Antworten der Lernseiten, Zuordnungen, Textmarkierungen, das erarbeitete
-Tafelbild, die Rechercheergebnisse und das Abschlussurteil. Über die Auswahl
-oben lässt sich zwischen verbindlichen Abgaben, Zwischenständen und beidem
-umschalten; dazu kommen Namenssuche, Kursfilter, Sortierung und eine
-Druckansicht der einzelnen Abgabe.
+**Anmelden:** E-Mail und Passwort des im Supabase-Dashboard angelegten Kontos
+(siehe Abschnitt 4.3). Die Anmeldung bleibt auf dem Gerät bestehen, bis oben
+rechts „Abmelden“ gewählt wird. Ist ein Konto zwar angemeldet, aber nicht in
+`lehrkraefte` eingetragen, erscheint ein entsprechender Hinweis und es werden
+keine Daten geladen.
+
+**Sichten:** Links die Liste mit Namenssuche, Kursfilter, Sortierung und dem
+Umschalter zwischen verbindlichen Abgaben, Zwischenständen und beidem. Ein
+Klick öffnet rechts die Detailansicht mit Name, Kurs, Zeitpunkt,
+Bearbeitungsstatus und -dauer, allen Antworten der Lernseiten, den Zuordnungen
+mit ✓/✗, den Textmarkierungen im Originalabschnitt, dem erarbeiteten Tafelbild,
+den Rechercheergebnissen und dem Abschlussurteil.
+
+**Herunterladen:**
+
+| Schaltfläche | Ergebnis |
+|---|---|
+| Auswahl als CSV | `Abgaben_JJJJ-MM-TT.csv` mit einer Zeile je Eintrag: Name, Kurs, Art, Zeitpunkt, Vollständigkeit, Dauer, je Lernschritt die Zahl der richtigen Zuordnungen und alle Freitextantworten. Semikolon-getrennt und mit BOM, öffnet sich in Excel und LibreOffice direkt mit korrekten Umlauten. |
+| Auswahl als JSON | Vollständige Sicherung aller angezeigten Einträge, einschließlich Markierungen und Tafelbild. |
+| Als HTML-Datei | Eine einzelne Abgabe als in sich geschlossene, druckbare Datei im Layout der Anwendung – mit Markierungen und Tafelbild. |
+| Als JSON-Datei | Eine einzelne Abgabe als Rohdatensatz. |
+
+Die beiden Sammel-Downloads berücksichtigen immer die gerade eingestellten
+Filter. Zusätzlich gibt es die Druckansicht des Browsers.
 
 ---
 

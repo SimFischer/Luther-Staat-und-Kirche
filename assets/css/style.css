@@ -349,7 +349,9 @@ label.feld > span{ display:block; margin-bottom:.25rem; font-weight:600; color:v
 }
 .vorschau-leiste strong{ color:var(--blau-tief); }
 .vorschau-leiste span{ flex:1 1 16rem; }
-.vorschau-leiste .knopf{ margin-left:auto; }
+.vorschau-leiste .knopf{ margin-left:auto; text-decoration:none; }
+.vorschau-leiste.abgelehnt{ background:var(--rot-zart); border-bottom-color:#d9b6b1; }
+.vorschau-leiste.abgelehnt strong{ color:var(--rot); }
 
 /* ---------- Schreibhilfen (Strukturhilfe, Denkanstöße) ---------- */
 .schreibhilfe{

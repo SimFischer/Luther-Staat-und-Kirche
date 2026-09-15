@@ -46,13 +46,17 @@ Weitere Merkmale:
   bereitet die Unterscheidung von innerer und äußerer Freiheit vor, ohne die
   Folgestunde vorwegzunehmen.
 * **Vorschaumodus für Lehrkräfte**: `index.html?vorschau=1` hebt die
-  Freischaltsperre auf, sodass sich alle Lernschritte der Reihe nach ansehen
-  lassen, ohne die Aufgaben zu lösen. Eine Leiste am oberen Rand weist darauf
-  hin; „Vorschau beenden“ schaltet zurück. Der Modus gilt nur für den aktuellen
-  Browser-Tab, verändert den gespeicherten Arbeitsstand nicht und ist auch über
-  den Fußlink im Lehrerbereich erreichbar. Er ist keine Zugangssperre: Wer den
-  Parameter kennt, kann ihn nutzen. Geschützt sind allein die Abgaben in der
-  Datenbank, und die verlangen weiterhin Anmeldung und Freischaltung.
+  Freischaltsperre auf, sodass sich alle Lernschritte ansehen lassen, ohne die
+  Aufgaben zu lösen. Er wird erst freigegeben, wenn dieselbe Prüfung besteht wie
+  im Lehrerbereich: eine gültige Supabase-Anmeldung **und** ein Eintrag in der
+  Tabelle `lehrkraefte`. Beides läuft über die bestehende Sitzung, eine erneute
+  Anmeldung ist also nicht nötig; bequem ist der Fußlink im Lehrerbereich.
+  Schülerinnen und Schüler, die den Link kennen, sehen stattdessen einen
+  Hinweis, und die Lernschritte bleiben der Reihe nach freigeschaltet. Lässt
+  sich die Berechtigung nicht prüfen (kein Netz, Supabase nicht eingerichtet),
+  bleibt der Modus ebenfalls gesperrt. Er gilt nur für den aktuellen
+  Browser-Tab und verändert den gespeicherten Arbeitsstand nicht;
+  „Vorschau beenden“ schaltet sofort zurück.
 * Der jeweils zugehörige Originalabschnitt bleibt während der Aufgaben oben
   angeheftet sichtbar und lässt sich ein- und ausklappen.
 * Bereits gelesene Abschnitte können jederzeit erneut geöffnet werden.

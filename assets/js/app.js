@@ -8,13 +8,18 @@
 
   var elKopf, elSchritte, elBalken, elLeser, elInhalt, elMeldung;
   var aktiveSeite = 0;
+  var aktuellerAbschnitt = null;
+  var leserInstanz = null;
 
   /* Vorschaumodus für Lehrkräfte: index.html?vorschau=1
      Hebt die Freischaltsperre auf, damit sich alle Lernschritte ansehen lassen.
-     Der Zustand hält nur für diesen Browser-Tab und verändert den Arbeitsstand
-     nicht. Beenden über den Knopf in der Leiste oder durch Schließen des Tabs. */
+     Freigegeben wird er erst, wenn dieselbe Anmeldung wie im Lehrerbereich
+     vorliegt (Supabase-Sitzung) UND das Konto in der Tabelle lehrkraefte
+     freigeschaltet ist. Der Modus gilt nur für diesen Browser-Tab und verändert
+     den gespeicherten Arbeitsstand nicht. */
   var VORSCHAU_SCHLUESSEL = "luther-vorschau";
-  var vorschau = (function () {
+  var vorschau = false;
+  var vorschauAngefragt = (function () {
     var imLink = /[?&]vorschau(=|&|$)/.test(window.location.search);
     try {
       if (imLink) { sessionStorage.setItem(VORSCHAU_SCHLUESSEL, "1"); return true; }
@@ -22,12 +27,44 @@
     } catch (e) { return imLink; }
   })();
 
-  function vorschauBeenden() {
+  function vorschauMerkerLoeschen() {
     try { sessionStorage.removeItem(VORSCHAU_SCHLUESSEL); } catch (e) {}
+  }
+
+  function vorschauBeenden() {
+    vorschauMerkerLoeschen();
     window.location.href = window.location.pathname;
   }
-  var aktuellerAbschnitt = null;
-  var leserInstanz = null;
+
+  /* Prüft dieselbe Berechtigung wie der Lehrerbereich: angemeldet und in der
+     Tabelle lehrkraefte eingetragen. Ohne Anmeldung greift die Row Level
+     Security, die Abfrage liefert dann nichts. */
+  function pruefeLehrkraft() {
+    if (!window.SB.istKonfiguriert() || window.SB.istServiceKey()) {
+      return Promise.resolve({ erlaubt: false,
+        grund: "Die Online-Anbindung ist auf dieser Seite nicht eingerichtet." });
+    }
+    return window.SB.hole().then(function (sb) {
+      return sb.auth.getSession().then(function (res) {
+        var sitzung = res && res.data ? res.data.session : null;
+        if (!sitzung || !sitzung.user) {
+          return { erlaubt: false, anmeldung: true,
+            grund: "Dafür musst du im Lehrerbereich angemeldet sein." };
+        }
+        return sb.from("lehrkraefte").select("user_id").eq("user_id", sitzung.user.id).maybeSingle()
+          .then(function (r) {
+            if (r.error || !r.data) {
+              return { erlaubt: false, anmeldung: true,
+                grund: "Dieses Konto ist nicht als Lehrkraft freigeschaltet." };
+            }
+            return { erlaubt: true };
+          });
+      });
+    }).catch(function () {
+      return { erlaubt: false,
+        grund: "Die Berechtigung konnte gerade nicht geprüft werden." };
+    });
+  }
 
   /* ---------------- Hilfsfunktionen ---------------- */
   function speichern() { window.Speicher.sichern(state); }
@@ -482,7 +519,14 @@
         zeichneSeite(ziel); return;
       }
       if (ev.target.closest("[data-weiter]")) { weiter(); return; }
-      if (ev.target.closest('[data-vorschau="aus"]')) { vorschauBeenden(); return; }
+      if (ev.target.closest('[data-vorschau="aus"]')) {
+        if (vorschau) { vorschauBeenden(); }
+        else {
+          var l = document.querySelector(".vorschau-leiste");
+          if (l) l.remove();
+        }
+        return;
+      }
       if (ev.target.closest("[data-drucken]")) { druckansicht(); return; }
       var sich = ev.target.closest("[data-sichern]");
       if (sich) {
@@ -765,17 +809,33 @@
     }
   }, 5000);
 
-  function zeigeVorschauLeiste() {
-    if (document.querySelector(".vorschau-leiste")) return;
+  function vorschauLeiste(inhalt, klasse) {
+    var alt = document.querySelector(".vorschau-leiste");
+    if (alt) alt.remove();
     var leiste = document.createElement("div");
-    leiste.className = "vorschau-leiste";
-    leiste.innerHTML =
+    leiste.className = "vorschau-leiste" + (klasse ? " " + klasse : "");
+    leiste.innerHTML = inhalt;
+    document.body.insertBefore(leiste, document.body.firstChild);
+  }
+
+  function zeigeVorschauLeiste() {
+    vorschauLeiste(
       "<strong>Vorschaumodus</strong>" +
       "<span>Alle Lernschritte sind freigeschaltet. Eingaben werden wie sonst auch " +
       "auf diesem Gerät gespeichert \u2013 eine Abgabe landet weiterhin in der Datenbank.</span>" +
-      '<button type="button" class="knopf stumm klein" data-vorschau="aus">Vorschau beenden</button>';
-    document.body.insertBefore(leiste, document.body.firstChild);
-    document.body.classList.add("in-vorschau");
+      '<button type="button" class="knopf stumm klein" data-vorschau="aus">Vorschau beenden</button>');
+  }
+
+  function zeigeVorschauAbgelehnt(ergebnis) {
+    vorschauMerkerLoeschen();
+    vorschauLeiste(
+      "<strong>Vorschaumodus nicht verfügbar</strong>" +
+      "<span>" + esc(ergebnis.grund || "") + " Die Lernschritte bleiben deshalb der Reihe nach " +
+      "freigeschaltet.</span>" +
+      (ergebnis.anmeldung
+        ? '<a class="knopf stumm klein" href="lehrer.html">Zum Lehrerbereich</a>'
+        : '<button type="button" class="knopf stumm klein" data-vorschau="aus">Hinweis ausblenden</button>'),
+      "abgelehnt");
   }
 
   /* ---------------- Start ---------------- */
@@ -791,12 +851,24 @@
         "Dieser darf nicht im Browser verwendet werden. Bitte durch den anon-/publishable-Key ersetzen.</p></div>";
       return;
     }
-    if (vorschau) zeigeVorschauLeiste();
     verdrahten();
+    window.addEventListener("beforeunload", function () { window.Speicher.sofortSichern(state); });
+
+    if (!vorschauAngefragt) { ersteSeite(); return; }
+
+    elInhalt.innerHTML = '<div class="karte">Berechtigung wird geprüft \u2026</div>';
+    pruefeLehrkraft().then(function (ergebnis) {
+      vorschau = !!ergebnis.erlaubt;
+      if (vorschau) zeigeVorschauLeiste();
+      else zeigeVorschauAbgelehnt(ergebnis);
+      ersteSeite();
+    });
+  }
+
+  function ersteSeite() {
     var start = Math.min(state.aktuelleSeite || 0, SEITEN.length - 1);
     if (!frei(start)) start = 0;
     zeichneSeite(start);
-    window.addEventListener("beforeunload", function () { window.Speicher.sofortSichern(state); });
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", los);

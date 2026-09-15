@@ -45,6 +45,14 @@ Weitere Merkmale:
   Die Aufgabe verlangt den Rückgriff auf alle vorangegangenen Lernschritte und
   bereitet die Unterscheidung von innerer und äußerer Freiheit vor, ohne die
   Folgestunde vorwegzunehmen.
+* **Vorschaumodus für Lehrkräfte**: `index.html?vorschau=1` hebt die
+  Freischaltsperre auf, sodass sich alle Lernschritte der Reihe nach ansehen
+  lassen, ohne die Aufgaben zu lösen. Eine Leiste am oberen Rand weist darauf
+  hin; „Vorschau beenden“ schaltet zurück. Der Modus gilt nur für den aktuellen
+  Browser-Tab, verändert den gespeicherten Arbeitsstand nicht und ist auch über
+  den Fußlink im Lehrerbereich erreichbar. Er ist keine Zugangssperre: Wer den
+  Parameter kennt, kann ihn nutzen. Geschützt sind allein die Abgaben in der
+  Datenbank, und die verlangen weiterhin Anmeldung und Freischaltung.
 * Der jeweils zugehörige Originalabschnitt bleibt während der Aufgaben oben
   angeheftet sichtbar und lässt sich ein- und ausklappen.
 * Bereits gelesene Abschnitte können jederzeit erneut geöffnet werden.

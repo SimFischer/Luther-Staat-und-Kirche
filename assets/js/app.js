@@ -8,6 +8,24 @@
 
   var elKopf, elSchritte, elBalken, elLeser, elInhalt, elMeldung;
   var aktiveSeite = 0;
+
+  /* Vorschaumodus für Lehrkräfte: index.html?vorschau=1
+     Hebt die Freischaltsperre auf, damit sich alle Lernschritte ansehen lassen.
+     Der Zustand hält nur für diesen Browser-Tab und verändert den Arbeitsstand
+     nicht. Beenden über den Knopf in der Leiste oder durch Schließen des Tabs. */
+  var VORSCHAU_SCHLUESSEL = "luther-vorschau";
+  var vorschau = (function () {
+    var imLink = /[?&]vorschau(=|&|$)/.test(window.location.search);
+    try {
+      if (imLink) { sessionStorage.setItem(VORSCHAU_SCHLUESSEL, "1"); return true; }
+      return sessionStorage.getItem(VORSCHAU_SCHLUESSEL) === "1";
+    } catch (e) { return imLink; }
+  })();
+
+  function vorschauBeenden() {
+    try { sessionStorage.removeItem(VORSCHAU_SCHLUESSEL); } catch (e) {}
+    window.location.href = window.location.pathname;
+  }
   var aktuellerAbschnitt = null;
   var leserInstanz = null;
 
@@ -15,7 +33,7 @@
   function speichern() { window.Speicher.sichern(state); }
   function ant(id) { return state.antworten[id]; }
   function setAnt(id, wert) { state.antworten[id] = wert; speichern(); }
-  function frei(i) { return state.freigeschaltet.indexOf(i) >= 0; }
+  function frei(i) { return vorschau || state.freigeschaltet.indexOf(i) >= 0; }
   function laenge(s) { return (s || "").trim().replace(/\s+/g, " ").length; }
 
   function seiteMitAbschnitt(abschnittId) {
@@ -464,6 +482,7 @@
         zeichneSeite(ziel); return;
       }
       if (ev.target.closest("[data-weiter]")) { weiter(); return; }
+      if (ev.target.closest('[data-vorschau="aus"]')) { vorschauBeenden(); return; }
       if (ev.target.closest("[data-drucken]")) { druckansicht(); return; }
       var sich = ev.target.closest("[data-sichern]");
       if (sich) {
@@ -746,6 +765,19 @@
     }
   }, 5000);
 
+  function zeigeVorschauLeiste() {
+    if (document.querySelector(".vorschau-leiste")) return;
+    var leiste = document.createElement("div");
+    leiste.className = "vorschau-leiste";
+    leiste.innerHTML =
+      "<strong>Vorschaumodus</strong>" +
+      "<span>Alle Lernschritte sind freigeschaltet. Eingaben werden wie sonst auch " +
+      "auf diesem Gerät gespeichert \u2013 eine Abgabe landet weiterhin in der Datenbank.</span>" +
+      '<button type="button" class="knopf stumm klein" data-vorschau="aus">Vorschau beenden</button>';
+    document.body.insertBefore(leiste, document.body.firstChild);
+    document.body.classList.add("in-vorschau");
+  }
+
   /* ---------------- Start ---------------- */
   function los() {
     elSchritte = document.getElementById("schritte");
@@ -759,6 +791,7 @@
         "Dieser darf nicht im Browser verwendet werden. Bitte durch den anon-/publishable-Key ersetzen.</p></div>";
       return;
     }
+    if (vorschau) zeigeVorschauLeiste();
     verdrahten();
     var start = Math.min(state.aktuelleSeite || 0, SEITEN.length - 1);
     if (!frei(start)) start = 0;

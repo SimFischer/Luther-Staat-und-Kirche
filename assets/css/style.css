@@ -340,6 +340,17 @@ label.feld > span{ display:block; margin-bottom:.25rem; font-weight:600; color:v
 .tabelle th,.tabelle td{ text-align:left; padding:.35rem .5rem; border-bottom:1px solid var(--linie-fein); vertical-align:top; }
 
 
+/* ---------- Vorschaumodus für Lehrkräfte ---------- */
+.vorschau-leiste{
+  display:flex; align-items:center; gap:.7rem; flex-wrap:wrap;
+  padding:.5rem clamp(.75rem,3vw,1.5rem);
+  background:var(--gelb-zart); border-bottom:1px solid var(--linie);
+  font-size:.86rem; color:var(--tinte-weich);
+}
+.vorschau-leiste strong{ color:var(--blau-tief); }
+.vorschau-leiste span{ flex:1 1 16rem; }
+.vorschau-leiste .knopf{ margin-left:auto; }
+
 /* ---------- Schreibhilfen (Strukturhilfe, Denkanstöße) ---------- */
 .schreibhilfe{
   border:1px solid var(--linie); border-radius:var(--r-s);
@@ -383,7 +394,7 @@ label.feld > span{ display:block; margin-bottom:.25rem; font-weight:600; color:v
 .druck-huelle .detail h3:first-of-type{ margin-top:1.2rem; }
 
 @media print{
-  .kopf,.knopfzeile,.leser-fuss,.tafel-vorrat,.werkzeuge,.liste,.fuss{ display:none !important; }
+  .kopf,.knopfzeile,.leser-fuss,.tafel-vorrat,.werkzeuge,.liste,.fuss,.vorschau-leiste{ display:none !important; }
   .druck-werkzeuge{ display:none !important; }
   body.druckt > *:not(.druck-huelle){ display:none !important; }
   .druck-huelle{ position:static; overflow:visible; background:#fff; }

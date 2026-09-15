@@ -339,8 +339,36 @@ label.feld > span{ display:block; margin-bottom:.25rem; font-weight:600; color:v
 .tabelle{ width:100%; border-collapse:collapse; font-size:.9rem; }
 .tabelle th,.tabelle td{ text-align:left; padding:.35rem .5rem; border-bottom:1px solid var(--linie-fein); vertical-align:top; }
 
+
+/* ---------- Druck-/PDF-Ansicht der Schüleransicht ---------- */
+.druck-huelle{
+  position:fixed; inset:0; z-index:60; overflow:auto;
+  background:var(--papier); -webkit-overflow-scrolling:touch;
+}
+.druck-werkzeuge{
+  position:sticky; top:0; z-index:2;
+  background:var(--karte); border-bottom:1px solid var(--linie);
+  padding:.8rem 1rem; display:flex; flex-wrap:wrap; gap:.6rem; align-items:center;
+}
+.druck-werkzeuge .zusatz{ flex-basis:100%; }
+.druck-huelle .detail h3{
+  margin:1.7rem 0 .6rem; padding-top:.55rem;
+  border-top:2px solid var(--linie);
+  font-family:var(--serif); font-size:1.14rem; color:var(--blau-tief);
+}
+.druck-huelle .detail h3:first-of-type{ margin-top:1.2rem; }
+
 @media print{
   .kopf,.knopfzeile,.leser-fuss,.tafel-vorrat,.werkzeuge,.liste,.fuss{ display:none !important; }
+  .druck-werkzeuge{ display:none !important; }
+  body.druckt > *:not(.druck-huelle){ display:none !important; }
+  .druck-huelle{ position:static; overflow:visible; background:#fff; }
+  h3{ page-break-after:avoid; }
+  /* Markierungsfarben und Tafelbild auch im Ausdruck sichtbar lassen */
+  .leser-text mark,.slot,.antwort{
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .slot .leer{ color:#bbb; }
   body{ background:#fff; font-size:11pt; }
   .karte,.leser{ box-shadow:none; border-color:#bbb; page-break-inside:avoid; }
   .leser{ position:static; }

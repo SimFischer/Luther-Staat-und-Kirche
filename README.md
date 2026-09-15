@@ -43,6 +43,12 @@ Weitere Merkmale:
 * **Fehlermeldungen** benennen, was noch fehlt, und verweisen auf die Textstelle.
 * Der Arbeitsstand wird laufend lokal im Browser gesichert. Über
   „Arbeit zurücksetzen“ (mit doppelter Sicherheitsabfrage) lässt er sich löschen.
+* **Ergebnisse als PDF sichern**: Der Knopf „Ergebnisse als PDF sichern“ (auf der
+  Sicherungskarte und auf der Abgabeseite) öffnet eine vollständige Übersicht mit
+  allen Lernschritten, den eigenen Antworten, dem Tafelbild und den
+  Textmarkierungen. Von dort führt „Als PDF sichern / drucken“ in den Druckdialog;
+  dort „Als PDF speichern“ wählen. Es werden bewusst **keine Musterlösungen und
+  keine Bewertungen** ausgegeben. Zurück geht es mit dem zweiten Knopf oder Escape.
 * Unter jeder Seite steht der Bereich **Arbeit sichern und fortsetzen**
   (siehe Abschnitt 2.1).
 * iPad-first: Touchflächen ab ca. 46 px, Hoch- und Querformat, Bedienung per
@@ -140,7 +146,12 @@ Damit entstehen die Tabellen `abgaben` und `lehrkraefte`, die Prüffunktion
 
 * Schülerinnen und Schüler dürfen **nur einfügen** – nicht lesen, ändern oder löschen.
 * Lesen dürfen ausschließlich angemeldete und freigeschaltete Lehrkräfte.
-* Für `UPDATE` und `DELETE` gibt es keine Regel.
+* **Löschen** dürfen ebenfalls nur freigeschaltete Lehrkräfte – über den Knopf
+  „Eintrag löschen“ in der Detailansicht des Lehrerbereichs (doppelte
+  Sicherheitsabfrage). Nützlich für Testabgaben und versehentliche
+  Doppelabgaben. Ein gelöschter Eintrag ist endgültig weg; auf dem Free-Plan
+  gibt es keine automatischen Backups, deshalb vorher „Auswahl als JSON“ sichern.
+* Für `UPDATE` gibt es keine Regel: eingegangene Abgaben bleiben unverändert.
 * Die Spalte `art` unterscheidet `zwischenstand` und `abgabe`.
 
 Die Datei lässt sich auch auf einem bereits eingerichteten Projekt erneut

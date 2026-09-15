@@ -408,6 +408,14 @@
     });
   }
 
+  /* Vollstaendige Ergebnisuebersicht zum Drucken bzw. als PDF sichern */
+  function druckansicht() {
+    if (!window.Druck) { window.print(); return; }
+    var abgeschlossen = 0;
+    for (var i = 1; i < SEITEN.length - 1; i++) if (seiteFertig(i)) abgeschlossen++;
+    window.Druck.oeffnen(state, { abgeschlossen: abgeschlossen, gesamt: SEITEN.length - 2 });
+  }
+
   function startInhalt() {
     var t = window.KLIEMANN_TEXT;
     return '<section class="karte"><h2>So arbeitest du</h2><ul>' +
@@ -430,7 +438,7 @@
         zeichneSeite(ziel); return;
       }
       if (ev.target.closest("[data-weiter]")) { weiter(); return; }
-      if (ev.target.closest("[data-drucken]")) { window.print(); return; }
+      if (ev.target.closest("[data-drucken]")) { druckansicht(); return; }
       var sich = ev.target.closest("[data-sichern]");
       if (sich) {
         if (sich.dataset.sichern === "datei") alsDatei(); else anLehrkraft();
@@ -582,7 +590,7 @@
         "<p>" + esc(a.vorname + " " + a.nachname) + " – " + esc(a.kurs) + ", abgegeben am " +
         new Date(a.abgegebenAm).toLocaleString("de-DE") + (a.online ? "" : " (lokal gesichert)") + ".</p></div>" +
         '<section class="karte"><p>Du kannst diese Seite jetzt schließen. Eine erneute Abgabe ist nicht nötig.</p>' +
-        '<div class="knopfzeile"><button type="button" class="knopf stumm" data-drucken="1">Übersicht drucken</button></div></section>';
+        '<div class="knopfzeile"><button type="button" class="knopf stumm" data-drucken="1">Ergebnisse als PDF sichern</button></div></section>';
     }
     var offen = offeneBereiche();
     var h = '<section class="karte"><h2>Vor der Abgabe</h2>';
@@ -596,7 +604,7 @@
     h += personFelder();
     h += '<div id="abgabeMeldung"></div>';
     h += '<div class="knopfzeile"><button type="button" class="knopf" id="btnAbgabe">Arbeit verbindlich abgeben</button>' +
-      '<button type="button" class="knopf stumm" data-drucken="1">Übersicht drucken</button></div>';
+      '<button type="button" class="knopf stumm" data-drucken="1">Ergebnisse als PDF sichern</button></div>';
     if (!window.SB.istKonfiguriert()) {
       h += '<div class="meldung info"><h3>Die Online-Abgabe ist noch nicht eingerichtet.</h3>' +
         "<p>Deine Arbeit wird dann nur auf diesem Gerät gesichert. Gib deiner Lehrkraft Bescheid oder drucke die Übersicht aus.</p></div>";

@@ -131,7 +131,7 @@
     if (!quelle) return;
     var kopie = quelle.cloneNode(true);
     kopie.querySelectorAll(".knopfzeile").forEach(function (k) { k.remove(); });
-    fetch("assets/css/style.css?v=5").then(function (res) { return res.ok ? res.text() : ""; })
+    fetch("assets/css/style.css?v=6").then(function (res) { return res.ok ? res.text() : ""; })
       .catch(function () { return ""; })
       .then(function (css) {
         var titel = a.vorname + " " + a.nachname + " – " + a.kurs;
@@ -462,6 +462,46 @@
     return kasten("");
   }
 
+  /* ---------------- Löschen ---------------- */
+  function loesche(a, knopf) {
+    var wer = (a.vorname || "") + " " + (a.nachname || "");
+    var was = (a.art || "abgabe") === "zwischenstand" ? "Zwischenstand" : "verbindliche Abgabe";
+    var wann = new Date(a.abgegeben_am).toLocaleString("de-DE");
+    if (!window.confirm(was + " von " + wer + " (" + wann + ") endgültig löschen?\n\n" +
+        "Der Eintrag wird aus der Datenbank entfernt und lässt sich nicht wiederherstellen.")) return;
+    if (!window.confirm("Letzte Sicherheitsabfrage: Eintrag von " + wer + " wirklich löschen?")) return;
+
+    knopf.disabled = true;
+    knopf.textContent = "Wird gelöscht \u2026";
+    sb.from("abgaben").delete().eq("id", a.id).select("id").then(function (res) {
+      if (res.error) {
+        knopf.disabled = false;
+        knopf.textContent = "Eintrag löschen";
+        var t = String(res.error.message || "");
+        if (/permission|denied|policy|row-level/i.test(t)) {
+          t = "Die Datenbank erlaubt diesem Konto kein Löschen. Führe den DELETE-Abschnitt aus " +
+              "supabase_setup.sql im SQL-Editor aus.";
+        }
+        window.alert("Löschen fehlgeschlagen: " + t);
+        return;
+      }
+      if (!res.data || !res.data.length) {
+        knopf.disabled = false;
+        knopf.textContent = "Eintrag löschen";
+        window.alert("Es wurde nichts gelöscht. Vermutlich fehlt die DELETE-Policy in der Datenbank " +
+                     "(DELETE-Abschnitt aus supabase_setup.sql ausführen).");
+        return;
+      }
+      abgaben = abgaben.filter(function (x) { return x.id !== a.id; });
+      ausgewaehlt = null;
+      zeichne();
+    }).catch(function (e) {
+      knopf.disabled = false;
+      knopf.textContent = "Eintrag löschen";
+      window.alert("Löschen fehlgeschlagen: " + String(e && e.message ? e.message : e));
+    });
+  }
+
   function zeichneDetail() {
     var a = null;
     abgaben.forEach(function (x) { if (x.id === ausgewaehlt) a = x; });
@@ -487,6 +527,7 @@
       '<button type="button" class="knopf stumm klein" data-tu="drucken">Druckansicht</button>' +
       '<button type="button" class="knopf stumm klein" data-tu="html">Als HTML-Datei</button>' +
       '<button type="button" class="knopf stumm klein" data-tu="json">Als JSON-Datei</button>' +
+      '<button type="button" class="knopf warn klein" data-tu="loeschen">Eintrag löschen</button>' +
       "</div>";
 
     window.SEITEN.forEach(function (s) {
@@ -517,6 +558,7 @@
       b.addEventListener("click", function () {
         if (b.dataset.tu === "drucken") window.print();
         else if (b.dataset.tu === "json") alsJsonEinzeln(a);
+        else if (b.dataset.tu === "loeschen") loesche(a, b);
         else setTimeout(function () { alsHtmlEinzeln(a); }, 60);
       });
     });

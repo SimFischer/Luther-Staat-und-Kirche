@@ -92,6 +92,7 @@ revoke all on public.lehrkraefte from anon, authenticated;
 
 grant insert on public.abgaben     to anon, authenticated;
 grant select on public.abgaben     to authenticated;
+grant delete on public.abgaben     to authenticated;
 grant select on public.lehrkraefte to authenticated;
 
 -- Abgeben darf jede und jeder (auch ohne Anmeldung)
@@ -108,7 +109,18 @@ create policy "lehrkraft liest abgaben"
   to authenticated
   using (public.ist_lehrkraft());
 
--- Kein UPDATE und kein DELETE: dafür existiert keine Policy.
+-- Löschen nur für freigeschaltete Lehrkräfte
+-- (z. B. um Testabgaben oder versehentliche Doppelabgaben zu entfernen).
+-- Achtung: Ein gelöschter Eintrag ist endgültig weg. Vorher sichern:
+-- im Lehrerbereich "Auswahl als JSON".
+drop policy if exists "lehrkraft loescht abgaben" on public.abgaben;
+create policy "lehrkraft loescht abgaben"
+  on public.abgaben for delete
+  to authenticated
+  using (public.ist_lehrkraft());
+
+-- Kein UPDATE: dafür existiert keine Policy. Abgaben bleiben unverändert,
+-- wie sie eingegangen sind.
 
 -- Lehrkräfte sehen nur den eigenen Freigabeeintrag
 drop policy if exists "eigener freigabeeintrag" on public.lehrkraefte;

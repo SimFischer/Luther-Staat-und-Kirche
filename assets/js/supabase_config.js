@@ -18,6 +18,6 @@
    ===================================================================== */
 
 window.SUPABASE_CONFIG = {
-  url:     "",
-  anonKey: ""
+  url:     "https://tfvzbhnvxiouhiprxqgh.supabase.co",
+  anonKey: "sb_publishable_ByVUpP6kZW6rmXT8mrh5Zg_LqAE11Y8"
 };

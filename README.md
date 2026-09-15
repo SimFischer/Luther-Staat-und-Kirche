@@ -170,6 +170,18 @@ Damit entstehen die Tabellen `abgaben` und `lehrkraefte`, die Prüffunktion
 `ist_lehrkraft()` sowie die Row-Level-Security-Regeln:
 
 * Schülerinnen und Schüler dürfen **nur einfügen** – nicht lesen, ändern oder löschen.
+* **Kein Klarname in der Datenbank**: Übertragen wird nur ein Kürzel aus je zwei
+  Buchstaben von Vor- und Nachname (Simon Fischer → `SiFi`), dazu die Angabe zu
+  Kurs bzw. Klasse. Der vollständige Name wird zwar eingegeben, bleibt aber
+  ausschließlich in der lokalen Speicherung des Schülergeräts und erscheint nur
+  im eigenen PDF. Unterhalb der Namensfelder zeigt die Anwendung laufend an, was
+  tatsächlich gesendet wird.
+  Zu beachten: Bei gleichen Anfangsbuchstaben im selben Kurs ist das Kürzel nicht
+  eindeutig – die Kursliste vorab prüfen. Und: Ein Kürzel ist eine
+  Pseudonymisierung, keine Anonymisierung; die Daten bleiben personenbezogen,
+  weil die Lehrkraft sie zuordnen kann. Die datenschutzrechtliche Bewertung des
+  Gesamtverfahrens (Auftragsverarbeitungsvertrag, Genehmigung durch die Schule,
+  Verarbeitungsverzeichnis) ersetzt das nicht.
 * Lesen dürfen ausschließlich angemeldete und freigeschaltete Lehrkräfte.
 * **Löschen** dürfen ebenfalls nur freigeschaltete Lehrkräfte – über den Knopf
   „Eintrag löschen“ in der Detailansicht des Lehrerbereichs (doppelte

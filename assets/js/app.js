@@ -383,13 +383,48 @@
     zeichneKopf();
   }
 
+  /* Datensparsamkeit: An die Datenbank geht nur ein Kürzel aus je zwei
+     Buchstaben von Vor- und Nachname. Der vollständige Name bleibt
+     ausschließlich in der lokalen Speicherung auf dem Gerät. */
+  var NUR_BUCHSTABEN = (function () {
+    // \p{L} erfasst auch Buchstaben wie Ş oder Ł. Ältere Browser fallen auf
+    // den Latin-1-Bereich zurück.
+    try { return new RegExp("[^\\p{L}]", "gu"); }
+    catch (e) { return /[^A-Za-zÀ-ÿ]/g; }
+  })();
+
+  function kuerzelTeil(t) {
+    var rein = String(t || "").trim().replace(NUR_BUCHSTABEN, "");
+    if (!rein) return "";
+    var a = rein.charAt(0).toUpperCase();
+    var b = rein.length > 1 ? rein.charAt(1).toLowerCase() : "";
+    return a + b;
+  }
+
+  function kuerzelGanz(vorname, nachname) {
+    var k = kuerzelTeil(vorname) + kuerzelTeil(nachname);
+    return k || "\u2014";
+  }
+
+  function kuerzelVorschauAn() {
+    var z = document.querySelector("[data-kuerzel]");
+    if (!z) return;
+    var p = state.person || {};
+    z.textContent = kuerzelGanz(p.vorname, p.nachname) +
+      ((p.kurs || "").trim() ? " \u00b7 " + (p.kurs || "").trim() : "");
+  }
+
   function personFelder() {
     var p = state.person || {};
     return '<div class="feldgruppe drei">' +
       '<label class="feld"><span>Vorname</span><input type="text" data-person="vorname" autocomplete="given-name" value="' + esc(p.vorname || "") + '"></label>' +
       '<label class="feld"><span>Nachname</span><input type="text" data-person="nachname" autocomplete="family-name" value="' + esc(p.nachname || "") + '"></label>' +
       '<label class="feld"><span>Kurs / Klasse</span><input type="text" data-person="kurs" placeholder="z. B. Q1 ev. Religion" value="' + esc(p.kurs || "") + '"></label>' +
-      "</div>";
+      "</div>" +
+      '<p class="zusatz kuerzel-hinweis">Übertragen wird nur dein Kürzel: ' +
+      '<strong data-kuerzel>' + esc(kuerzelGanz(p.vorname, p.nachname)) +
+      ((p.kurs || "").trim() ? " \u00b7 " + esc((p.kurs || "").trim()) : "") + "</strong>. " +
+      "Dein vollständiger Name bleibt auf diesem Gerät und erscheint nur in deinem eigenen PDF.</p>";
   }
 
   function sicherungHtml(aufAbgabeseite) {
@@ -609,6 +644,7 @@
       if (el.dataset && el.dataset.person) {
         if (!state.person) state.person = { vorname: "", nachname: "", kurs: "" };
         state.person[el.dataset.person] = el.value;
+        kuerzelVorschauAn();
         speichern();
         return;
       }
@@ -709,7 +745,8 @@
     var abgeschlossen = 0;
     for (var i = 1; i < SEITEN.length - 1; i++) if (seiteFertig(i)) abgeschlossen++;
     return {
-      vorname: vorname, nachname: nachname, kurs: kurs,
+      // Bewusst nur die Kürzel-Bestandteile, nicht der Klarname
+      vorname: kuerzelTeil(vorname), nachname: kuerzelTeil(nachname), kurs: kurs,
       art: art || "abgabe",
       abgegeben_am: new Date().toISOString(),
       dauer_sekunden: Math.round(state.aktiveSekunden || 0),

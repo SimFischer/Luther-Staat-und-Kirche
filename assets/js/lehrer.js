@@ -34,6 +34,18 @@
     return String(t || "").replace(/[^A-Za-zÄÖÜäöüß0-9_-]+/g, "_").replace(/^_+|_+$/g, "");
   }
 
+  /* Ab Version 10 übertragen die Schülergeräte nur noch ein Kürzel aus je zwei
+     Buchstaben von Vor- und Nachname. Ältere Abgaben enthalten noch Klarnamen,
+     deshalb wird beides unterstützt. */
+  function istKuerzel(a) {
+    return (a.vorname || "").length <= 2 && (a.nachname || "").length <= 2;
+  }
+
+  function anzeigeName(a) {
+    if (istKuerzel(a)) return (a.vorname || "") + (a.nachname || "");
+    return (a.nachname || "") + ", " + (a.vorname || "");
+  }
+
   /* Bewertet eine einzelne Aufgabe: true, false oder null (nicht prüfbar) */
   function bewerte(a, wert) {
     if (a.typ === "mc") return wert === undefined || wert === null ? false : wert === a.loesung;
@@ -51,6 +63,7 @@
   /* Spalten für die CSV-Übersicht, abgeleitet aus den Lernseiten */
   function spalten() {
     var sp = [
+      { kopf: "Kürzel",      hole: function (a) { return (a.vorname || "") + (a.nachname || ""); } },
       { kopf: "Nachname",    hole: function (a) { return a.nachname; } },
       { kopf: "Vorname",     hole: function (a) { return a.vorname; } },
       { kopf: "Kurs",        hole: function (a) { return a.kurs; } },
@@ -121,7 +134,7 @@
   }
 
   function alsJsonEinzeln(a) {
-    speichereDatei("Abgabe_" + sauber(a.nachname) + "_" + sauber(a.vorname) + "_" + heute() + ".json",
+    speichereDatei("Abgabe_" + sauber(anzeigeName(a)) + "_" + heute() + ".json",
       JSON.stringify(a, null, 2), "application/json");
   }
 
@@ -131,16 +144,16 @@
     if (!quelle) return;
     var kopie = quelle.cloneNode(true);
     kopie.querySelectorAll(".knopfzeile").forEach(function (k) { k.remove(); });
-    fetch("assets/css/style.css?v=9").then(function (res) { return res.ok ? res.text() : ""; })
+    fetch("assets/css/style.css?v=10").then(function (res) { return res.ok ? res.text() : ""; })
       .catch(function () { return ""; })
       .then(function (css) {
-        var titel = a.vorname + " " + a.nachname + " – " + a.kurs;
+        var titel = (istKuerzel(a) ? anzeigeName(a) : a.vorname + " " + a.nachname) + " – " + a.kurs;
         var doc = "<!DOCTYPE html>\n<html lang=\"de\"><head><meta charset=\"utf-8\">" +
           '<meta name="viewport" content="width=device-width, initial-scale=1">' +
           "<title>" + esc(titel) + "</title><style>" + css +
           "\n.kopf{display:none}.huelle{max-width:52rem;margin:0 auto;padding:1.5rem}</style></head><body>" +
           '<main class="huelle">' + kopie.innerHTML + "</main></body></html>";
-        speichereDatei("Abgabe_" + sauber(a.nachname) + "_" + sauber(a.vorname) + "_" + heute() + ".html",
+        speichereDatei("Abgabe_" + sauber(anzeigeName(a)) + "_" + heute() + ".html",
           doc, "text/html");
       });
   }
@@ -379,7 +392,7 @@
           '<ul class="liste">' + (liste.length ? liste.map(function (a) {
             return '<li><button type="button" data-id="' + esc(a.id) + '"' +
               (ausgewaehlt === a.id ? ' class="aktiv"' : "") + ">" +
-              "<strong>" + esc((a.nachname || "") + ", " + (a.vorname || "")) + "</strong> " +
+              "<strong>" + esc(anzeigeName(a)) + "</strong> " +
               ((a.art || "abgabe") === "zwischenstand"
                 ? '<span class="merker zwischen">Zwischenstand</span>'
                 : '<span class="merker ' + (a.vollstaendig ? "voll" : "teil") + '">' +
@@ -464,7 +477,7 @@
 
   /* ---------------- Löschen ---------------- */
   function loesche(a, knopf) {
-    var wer = (a.vorname || "") + " " + (a.nachname || "");
+    var wer = anzeigeName(a);
     var was = (a.art || "abgabe") === "zwischenstand" ? "Zwischenstand" : "verbindliche Abgabe";
     var wann = new Date(a.abgegeben_am).toLocaleString("de-DE");
     if (!window.confirm(was + " von " + wer + " (" + wann + ") endgültig löschen?\n\n" +
@@ -513,7 +526,7 @@
     var f = a.fortschritt || {};
 
     var h = '<section class="karte detail">' +
-      "<h1>" + esc(a.vorname + " " + a.nachname) + "</h1>" +
+      "<h1>" + esc(istKuerzel(a) ? anzeigeName(a) : a.vorname + " " + a.nachname) + "</h1>" +
       '<table class="tabelle"><tbody>' +
       "<tr><th>Art</th><td>" + ((a.art || "abgabe") === "zwischenstand"
         ? "Zwischenstand während der Bearbeitung" : "Verbindliche Abgabe") + "</td></tr>" +

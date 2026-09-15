@@ -340,6 +340,13 @@ label.feld > span{ display:block; margin-bottom:.25rem; font-weight:600; color:v
 .tabelle th,.tabelle td{ text-align:left; padding:.35rem .5rem; border-bottom:1px solid var(--linie-fein); vertical-align:top; }
 
 
+.kuerzel-hinweis{
+  margin:.6rem 0 0; padding:.5rem .7rem;
+  background:var(--blau-zart); border-radius:var(--r-s);
+  font-size:.86rem;
+}
+.kuerzel-hinweis strong{ font-variant-numeric:tabular-nums; }
+
 /* ---------- Vorschaumodus für Lehrkräfte ---------- */
 .vorschau-leiste{
   display:flex; align-items:center; gap:.7rem; flex-wrap:wrap;

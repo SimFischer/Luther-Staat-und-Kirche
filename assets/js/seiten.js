@@ -327,28 +327,38 @@ window.SEITEN = [
 {
   id: "stellungnahme", kurz: "8", kapitel: "Lernschritt 8",
   titel: "Erörterung: gebunden – und trotzdem frei?",
-  lead: "Zum Abschluss bringst du alles zusammen, was du erarbeitet hast: die Entstehungssituation der Schrift, die beiden Regimente, die Doppelbestimmung des Menschen, die Grenzen der Obrigkeit, die Frage des Widerstands und deinen Gegenwartsbezug. Schreibe einen zusammenhängenden Text – keine Stichpunkte.",
+  lead: "Zum Abschluss bringst du alles zusammen, was du erarbeitet hast: die Entstehungssituation der Schrift, die beiden Regimente, die Doppelbestimmung des Menschen, die Grenzen der Obrigkeit, die Frage des Widerstands und deinen Gegenwartsbezug. Du schreibst zuerst Einleitung, Hauptteil und Schluss einzeln. Danach fügst du sie per Knopfdruck zu einem Text zusammen und arbeitest ihn zu einer zusammenhängenden Erörterung um.",
   abschnitt: null,
   aufgaben: [
-    { id: "z1", typ: "text",
-      frage: "Luther mutet dem Menschen zu, zugleich in zwei Ordnungen zu leben: als Christperson an das Evangelium gebunden, als Weltperson an Gesetz, Amt und Obrigkeit. Erörtere, ob ein Mensch, der sich ganz an das Evangelium gebunden weiß, dadurch unfreier oder freier ist als einer, der allein den staatlichen Gesetzen folgt. Nimm am Schluss begründet Stellung.",
-      zusatz: "Belege deine Überlegungen am Text und beziehe deine Ergebnisse aus den Lernschritten 1 bis 7 ein. Richtwert: etwa 400 bis 600 Wörter.",
-      minLen: 900,
-      zeilen: 18,
-      platzhalter: "Beginne mit der Fragestellung und arbeite dich dann Schritt für Schritt durch deine Argumente …",
+    { id: "z1e", typ: "text",
+      frage: "Teil 1 von 3: Einleitung",
+      zusatz: "Kurz halten – etwa ein Zehntel deines Textes. Hake die Punkte ab, die du untergebracht hast.",
+      minLen: 180,
+      zeilen: 6,
+      platzhalter: "Martin Luther verfasste 1523 …",
       strukturOffen: true,
-      strukturTitel: "Strukturhilfe: Einleitung – Hauptteil – Schluss",
+      strukturTitel: "Checkliste: Das gehört in die Einleitung",
       struktur: [
         { titel: "Einleitung",
-          zusatz: "Kurz halten – etwa ein Zehntel deines Textes.",
           punkte: [
             "Benenne Verfasser, Schrift und Entstehungssituation in einem Satz (Jahr, Anlass, Adressat).",
             "Führe zum Kern hin: Luther unterscheidet zwei Regimente und bestimmt den Menschen doppelt.",
             "Formuliere die Leitfrage, die du bearbeitest, in eigenen Worten.",
             "Kündige an, wie du vorgehst."
-          ] },
+          ] }
+      ],
+      hinweisLeer: "Deine Einleitung fehlt noch oder ist sehr knapp. Arbeite die vier Punkte der Checkliste ab." },
+
+    { id: "z1h", typ: "text",
+      frage: "Teil 2 von 3: Hauptteil",
+      zusatz: "Der längste Teil. Baue ihn in klaren Abschnitten auf und belege jede Aussage am Text.",
+      minLen: 900,
+      zeilen: 16,
+      platzhalter: "Zunächst ist zu klären, was Luther unter den beiden Regimenten versteht …",
+      strukturOffen: true,
+      strukturTitel: "Checkliste: Das gehört in den Hauptteil",
+      struktur: [
         { titel: "Hauptteil",
-          zusatz: "Der längste Teil. Baue ihn in klaren Abschnitten auf und belege jede Aussage am Text.",
           punkte: [
             "Darstellung: Erkläre Luthers Position – geistliches und weltliches Regiment, ihre Mittel, ihr gemeinsamer Ursprung und ihr jeweiliges Ziel.",
             "Darstellung: Zeige, warum nach Luther derselbe Mensch in beiden Regimenten steht und wo die Grenze zwischen Reich Gottes und Reich des Bösen verläuft.",
@@ -358,13 +368,6 @@ window.SEITEN = [
             "Beziehe den Widerstandsgedanken ein: Wer freiwillig gehorcht, kann auch begründet widersprechen. Was folgt daraus für deine Frage?",
             "Gegenwartsbezug: Nutze deinen Konflikt aus Lernschritt 7 und die Unterscheidung von Sachfragen und Glaubensfragen.",
             "Wäge ab: Nimm mindestens einen Einwand gegen deine eigene Linie ernst und antworte darauf."
-          ] },
-        { titel: "Schluss",
-          zusatz: "Keine neuen Argumente mehr – aber eine klare Position.",
-          punkte: [
-            "Bündele dein Ergebnis in zwei bis drei Sätzen.",
-            "Nimm begründet Stellung: Wie beantwortest du die Leitfrage?",
-            "Benenne, was für dich offen bleibt oder wo Luthers Denken an Grenzen stößt."
           ] }
       ],
       anstoesse: [
@@ -374,7 +377,46 @@ window.SEITEN = [
         "Was bedeutet es für den Zwingenden und für den Gezwungenen, dass Glaube sich nicht erzwingen lässt?",
         "Könnte es sein, dass Freiheit und Dienst bei Luther keine Gegensätze sind, sondern zusammengehören?"
       ],
-      hinweisLeer: "Deine Erörterung fehlt noch oder ist sehr knapp. Arbeite Einleitung, Hauptteil und Schluss aus und belege deine Aussagen am Text." }
+      hinweisLeer: "Dein Hauptteil fehlt noch oder ist sehr knapp. Arbeite die Punkte der Checkliste ab und belege deine Aussagen am Text." },
+
+    { id: "z1s", typ: "text",
+      frage: "Teil 3 von 3: Schluss",
+      zusatz: "Keine neuen Argumente mehr – aber eine klare Position.",
+      minLen: 200,
+      zeilen: 6,
+      platzhalter: "Insgesamt zeigt sich …",
+      strukturOffen: true,
+      strukturTitel: "Checkliste: Das gehört in den Schluss",
+      struktur: [
+        { titel: "Schluss",
+          punkte: [
+            "Bündele dein Ergebnis in zwei bis drei Sätzen.",
+            "Nimm begründet Stellung: Wie beantwortest du die Leitfrage?",
+            "Benenne, was für dich offen bleibt oder wo Luthers Denken an Grenzen stößt."
+          ] }
+      ],
+      hinweisLeer: "Dein Schluss fehlt noch oder ist sehr knapp. Arbeite die drei Punkte der Checkliste ab." },
+
+    { id: "z1", typ: "text",
+      frage: "Deine Erörterung: gebunden – und trotzdem frei?",
+      zusatz: "Mit dem Knopf über diesem Feld werden deine drei Teile hier zusammengeführt. Der Rohtext ist damit aber noch keine Erörterung: Erst durch Überleitungen, Rückbezüge und einen durchgehenden Gedankengang wird daraus ein zusammenhängender Text. Richtwert insgesamt: etwa 400 bis 600 Wörter.",
+      minLen: 1200,
+      zeilen: 20,
+      platzhalter: "Füge zuerst deine drei Teile mit dem Knopf zusammen – danach überarbeitest du sie hier zu einem durchgehenden Text.",
+      strukturOffen: true,
+      strukturTitel: "Checkliste: Daran arbeitest du beim Überarbeiten",
+      struktur: [
+        { titel: "Überarbeiten",
+          zusatz: "Der zusammengefügte Text ist dein Rohtext. Diese fünf Dinge machen daraus eine Erörterung.",
+          punkte: [
+            "Überleitung von der Einleitung zum ersten Argument einfügen.",
+            "Die Argumente miteinander verknüpfen: dagegen spricht, daran anschließend, umgekehrt, gerade deshalb.",
+            "Den Schluss ausdrücklich auf die Leitfrage der Einleitung zurückbeziehen.",
+            "Wiederholungen streichen, die durch das Zusammenfügen entstanden sind.",
+            "Absätze sinnvoll setzen: ein Gedanke, ein Absatz."
+          ] }
+      ],
+      hinweisLeer: "Deine Erörterung fehlt noch oder ist sehr knapp. Füge deine drei Teile zusammen und arbeite sie zu einem durchgehenden Text um." }
   ]
 },
 

@@ -31,10 +31,20 @@ jederzeit zurückgekehrt werden.
 | 5 | Grenze der Obrigkeit und Widerstand (1523 gegenüber späteren Texten) | Z. 99–132 |
 | 6 | Interaktives Tafelbild | — |
 | 7 | Gegenwartstransfer mit Recherche und Abschlussurteil | — |
-| 8 | Verbindliche Abgabe | — |
+| 8 | Erörterung / Stellungnahme (Anforderungsbereich III) mit Strukturhilfe | gesamter Text |
+| 9 | Verbindliche Abgabe | — |
 
 Weitere Merkmale:
 
+* **Lernschritt 8** ist die zusammenführende Schreibaufgabe im
+  Anforderungsbereich III: eine Erörterung mit abschließender begründeter
+  Stellungnahme zu der Frage, ob Bindung an das Evangelium unfreier oder freier
+  macht als bloßer Gesetzesgehorsam. Ein großes Schreibfeld (Mindestumfang 900
+  Zeichen, Richtwert 400–600 Wörter), eine aufgeklappte Strukturhilfe für
+  Einleitung, Hauptteil und Schluss sowie zuklappbare Denkanstöße gehören dazu.
+  Die Aufgabe verlangt den Rückgriff auf alle vorangegangenen Lernschritte und
+  bereitet die Unterscheidung von innerer und äußerer Freiheit vor, ohne die
+  Folgestunde vorwegzunehmen.
 * Der jeweils zugehörige Originalabschnitt bleibt während der Aufgaben oben
   angeheftet sichtbar und lässt sich ein- und ausklappen.
 * Bereits gelesene Abschnitte können jederzeit erneut geöffnet werden.

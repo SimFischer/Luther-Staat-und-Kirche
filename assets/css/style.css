@@ -340,6 +340,30 @@ label.feld > span{ display:block; margin-bottom:.25rem; font-weight:600; color:v
 .tabelle th,.tabelle td{ text-align:left; padding:.35rem .5rem; border-bottom:1px solid var(--linie-fein); vertical-align:top; }
 
 
+/* ---------- Schreibhilfen (Strukturhilfe, Denkanstöße) ---------- */
+.schreibhilfe{
+  border:1px solid var(--linie); border-radius:var(--r-s);
+  background:var(--papier); margin:0 0 .8rem; overflow:hidden;
+}
+.schreibhilfe + .schreibhilfe{ margin-top:-.3rem; }
+.schreibhilfe > summary{
+  cursor:pointer; list-style:none;
+  min-height:var(--tap); display:flex; align-items:center; gap:.5rem;
+  padding:.55rem .75rem; font-size:.92rem; font-weight:600; color:var(--blau-tief);
+}
+.schreibhilfe > summary::-webkit-details-marker{ display:none; }
+.schreibhilfe > summary::before{ content:"▸"; color:var(--tinte-zart); font-size:.9em; }
+.schreibhilfe[open] > summary::before{ content:"▾"; }
+.schreibhilfe > summary:focus-visible{ outline:2px solid var(--blau); outline-offset:-2px; }
+.schreibhilfe-inhalt{ padding:.1rem .95rem .8rem; border-top:1px solid var(--linie-fein); }
+.schreibhilfe-inhalt h4{
+  font-family:var(--serif); font-size:1rem; color:var(--blau-tief);
+  margin:.85rem 0 .25rem;
+}
+.schreibhilfe-inhalt .zusatz{ margin:0 0 .35rem; font-size:.84rem; }
+.schreibhilfe-inhalt ul{ margin:0; padding-left:1.15rem; }
+.schreibhilfe-inhalt li{ margin-bottom:.3rem; font-size:.92rem; color:var(--tinte-weich); }
+
 /* ---------- Druck-/PDF-Ansicht der Schüleransicht ---------- */
 .druck-huelle{
   position:fixed; inset:0; z-index:60; overflow:auto;

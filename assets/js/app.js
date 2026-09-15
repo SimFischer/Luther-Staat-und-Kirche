@@ -157,6 +157,30 @@
     }
   }
 
+  /* Aufklappbare Schreibhilfen zu einer Schreibaufgabe (Aufbau, Denkanstoesse) */
+  function strukturHtml(a) {
+    var h = "";
+    if (a.struktur && a.struktur.length) {
+      h += '<details class="schreibhilfe"' + (a.strukturOffen ? " open" : "") + ">" +
+        "<summary>" + esc(a.strukturTitel || "Strukturhilfe: So kannst du deinen Text aufbauen") + "</summary>" +
+        '<div class="schreibhilfe-inhalt">' +
+        a.struktur.map(function (teil) {
+          return "<h4>" + esc(teil.titel) + "</h4>" +
+            (teil.zusatz ? '<p class="zusatz">' + esc(teil.zusatz) + "</p>" : "") +
+            "<ul>" + (teil.punkte || []).map(function (pt) {
+              return "<li>" + esc(pt) + "</li>";
+            }).join("") + "</ul>";
+        }).join("") + "</div></details>";
+    }
+    if (a.anstoesse && a.anstoesse.length) {
+      h += '<details class="schreibhilfe"><summary>Denkanstöße, falls du nicht weiterkommst</summary>' +
+        '<div class="schreibhilfe-inhalt"><ul>' +
+        a.anstoesse.map(function (pt) { return "<li>" + esc(pt) + "</li>"; }).join("") +
+        "</ul></div></details>";
+    }
+    return h;
+  }
+
   /* ---------------- Aufgaben zeichnen ---------------- */
   function htmlAufgabe(a) {
     var v = ant(a.id), h = "";
@@ -176,7 +200,9 @@
     }
 
     else if (a.typ === "text") {
-      h += '<textarea data-typ="text" data-ziel="' + a.id + '" rows="5" placeholder="' +
+      h += strukturHtml(a);
+      h += '<textarea data-typ="text" data-ziel="' + a.id + '" rows="' + (a.zeilen || 5) +
+        '" placeholder="' +
         esc(a.platzhalter || "") + '">' + esc(v || "") + "</textarea>" +
         '<div class="zaehler" data-zaehler="' + a.id + '">' + laenge(v) +
         " Zeichen (mindestens " + a.minLen + ")</div>";

@@ -325,7 +325,62 @@ window.SEITEN = [
 
 /* ---------------------------------------------------------------- 8 */
 {
-  id: "abgabe", kurz: "8", kapitel: "Abschluss",
+  id: "stellungnahme", kurz: "8", kapitel: "Lernschritt 8",
+  titel: "Erörterung: gebunden – und trotzdem frei?",
+  lead: "Zum Abschluss bringst du alles zusammen, was du erarbeitet hast: die Entstehungssituation der Schrift, die beiden Regimente, die Doppelbestimmung des Menschen, die Grenzen der Obrigkeit, die Frage des Widerstands und deinen Gegenwartsbezug. Schreibe einen zusammenhängenden Text \u2013 keine Stichpunkte.",
+  abschnitt: null,
+  aufgaben: [
+    { id: "z1", typ: "text",
+      frage: "Luther mutet dem Menschen zu, zugleich in zwei Ordnungen zu leben: als Christperson an das Evangelium gebunden, als Weltperson an Gesetz, Amt und Obrigkeit. Erörtere, ob ein Mensch, der sich ganz an das Evangelium gebunden weiß, dadurch unfreier oder freier ist als einer, der allein den staatlichen Gesetzen folgt. Nimm am Schluss begründet Stellung.",
+      zusatz: "Belege deine Überlegungen am Text und beziehe deine Ergebnisse aus den Lernschritten 1 bis 7 ein. Richtwert: etwa 400 bis 600 Wörter.",
+      minLen: 900,
+      zeilen: 18,
+      platzhalter: "Beginne mit der Fragestellung und arbeite dich dann Schritt für Schritt durch deine Argumente \u2026",
+      strukturOffen: true,
+      strukturTitel: "Strukturhilfe: Einleitung \u2013 Hauptteil \u2013 Schluss",
+      struktur: [
+        { titel: "Einleitung",
+          zusatz: "Kurz halten \u2013 etwa ein Zehntel deines Textes.",
+          punkte: [
+            "Benenne Verfasser, Schrift und Entstehungssituation in einem Satz (Jahr, Anlass, Adressat).",
+            "Führe zum Kern hin: Luther unterscheidet zwei Regimente und bestimmt den Menschen doppelt.",
+            "Formuliere die Leitfrage, die du bearbeitest, in eigenen Worten.",
+            "Kündige an, wie du vorgehst."
+          ] },
+        { titel: "Hauptteil",
+          zusatz: "Der längste Teil. Baue ihn in klaren Abschnitten auf und belege jede Aussage am Text.",
+          punkte: [
+            "Darstellung: Erkläre Luthers Position \u2013 geistliches und weltliches Regiment, ihre Mittel, ihr gemeinsamer Ursprung und ihr jeweiliges Ziel.",
+            "Darstellung: Zeige, warum nach Luther derselbe Mensch in beiden Regimenten steht und wo die Grenze zwischen Reich Gottes und Reich des Bösen verläuft.",
+            "Argumente für \u201egebunden heißt unfrei\u201c: Wer sich einer Ordnung unterstellt, gibt Selbstbestimmung ab; Gehorsam gegenüber schlechter Obrigkeit wirkt wie Fremdbestimmung.",
+            "Argumente dagegen: Unterscheide äußere und innere Freiheit. Woran ist der Mensch nach Luther gebunden \u2013 und wovon ist er dadurch gerade nicht mehr abhängig?",
+            "Prüfe die Grenze staatlicher Macht: Warum kann nach Luther niemand zum Glauben gezwungen werden \u2013 und was heißt das für die Freiheit des Einzelnen?",
+            "Beziehe den Widerstandsgedanken ein: Wer freiwillig gehorcht, kann auch begründet widersprechen. Was folgt daraus für deine Frage?",
+            "Gegenwartsbezug: Nutze deinen Konflikt aus Lernschritt 7 und die Unterscheidung von Sachfragen und Glaubensfragen.",
+            "Wäge ab: Nimm mindestens einen Einwand gegen deine eigene Linie ernst und antworte darauf."
+          ] },
+        { titel: "Schluss",
+          zusatz: "Keine neuen Argumente mehr \u2013 aber eine klare Position.",
+          punkte: [
+            "Bündele dein Ergebnis in zwei bis drei Sätzen.",
+            "Nimm begründet Stellung: Wie beantwortest du die Leitfrage?",
+            "Benenne, was für dich offen bleibt oder wo Luthers Denken an Grenzen stößt."
+          ] }
+      ],
+      anstoesse: [
+        "Kann Gehorsam freiwillig sein \u2013 und ändert das etwas an seinem Wert?",
+        "Wem gegenüber ist der Christ nach Luther frei \u2013 und wem gegenüber dient er?",
+        "Ist jemand, der aus Überzeugung dient, weniger frei als jemand, der nichts tun muss?",
+        "Was bedeutet es für den Zwingenden und für den Gezwungenen, dass Glaube sich nicht erzwingen lässt?",
+        "Könnte es sein, dass Freiheit und Dienst bei Luther keine Gegensätze sind, sondern zusammengehören?"
+      ],
+      hinweisLeer: "Deine Erörterung fehlt noch oder ist sehr knapp. Arbeite Einleitung, Hauptteil und Schluss aus und belege deine Aussagen am Text." }
+  ]
+},
+
+/* ---------------------------------------------------------------- 9 */
+{
+  id: "abgabe", kurz: "9", kapitel: "Abschluss",
   titel: "Arbeit abgeben",
   lead: "Trage deinen Namen und deinen Kurs ein und gib deine Arbeit verbindlich ab.",
   abschnitt: null,

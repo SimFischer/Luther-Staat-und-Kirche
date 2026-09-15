@@ -10,6 +10,12 @@
   var sb = null, abgaben = [], ausgewaehlt = null;
   var filter = { suche: "", kurs: "", sortierung: "neu", art: "abgabe" };
 
+  /* Kennung dieser Lerneinheit. Mehrere Einheiten teilen sich dieselbe
+     Tabelle public.abgaben und werden über die Spalte "einheit" getrennt.
+     Falls später ein assets/js/einheit.js ergänzt wird, gilt dessen id,
+     sonst der feste Wert "luther" (= Standardwert der Spalte). */
+  var EINHEIT_ID = (window.EINHEIT || {}).id || "luther";
+
   function meldung(art, titel, text) {
     return '<div class="meldung ' + art + '">' + (titel ? "<h3>" + esc(titel) + "</h3>" : "") +
       "<p>" + esc(text) + "</p></div>";
@@ -124,7 +130,7 @@
       zeilen.push(sp.map(function (c) { return csvFeld(c.hole(a)); }).join(";"));
     });
     // BOM, damit Excel die Umlaute richtig liest
-    speichereDatei("Abgaben_" + heute() + ".csv", "\ufeff" + zeilen.join("\r\n"), "text/csv");
+    speichereDatei("Abgaben_" + heute() + ".csv", "﻿" + zeilen.join("\r\n"), "text/csv");
   }
 
   function alsJsonSammlung(liste) {
@@ -211,12 +217,12 @@
       var e = (fEmail.value || "").trim();
       var pw = fPass.value || "";
       if (!e || !pw) { zeigeAnmeldung("Bitte E-Mail und Passwort eingeben.", e); return; }
-      btn.disabled = true; btn.textContent = "Wird geprüft \u2026";
+      btn.disabled = true; btn.textContent = "Wird geprüft …";
       sb.auth.signInWithPassword({ email: e, password: pw }).then(function (res) {
         if (res.error) {
           var t = String(res.error.message || "");
           if (/invalid login/i.test(t)) t = "E-Mail oder Passwort stimmt nicht.";
-          else if (/not confirmed/i.test(t)) t = "Das Konto ist noch nicht bestätigt. Im Supabase-Dashboard unter Authentication \u2192 Users bestätigen.";
+          else if (/not confirmed/i.test(t)) t = "Das Konto ist noch nicht bestätigt. Im Supabase-Dashboard unter Authentication → Users bestätigen.";
           zeigeAnmeldung(t, e);
           return;
         }
@@ -330,7 +336,9 @@
   /* ---------------- Daten ---------------- */
   function laden() {
     bereich.innerHTML = '<div class="karte">Abgaben werden geladen …</div>';
-    sb.from("abgaben").select("*").order("abgegeben_am", { ascending: false })
+    sb.from("abgaben").select("*")
+      .eq("einheit", EINHEIT_ID)
+      .order("abgegeben_am", { ascending: false })
       .then(function (res) {
         if (res.error) {
           bereich.innerHTML = meldung("fehler", "Abgaben konnten nicht geladen werden", res.error.message);
@@ -485,7 +493,7 @@
     if (!window.confirm("Letzte Sicherheitsabfrage: Eintrag von " + wer + " wirklich löschen?")) return;
 
     knopf.disabled = true;
-    knopf.textContent = "Wird gelöscht \u2026";
+    knopf.textContent = "Wird gelöscht …";
     sb.from("abgaben").delete().eq("id", a.id).select("id").then(function (res) {
       if (res.error) {
         knopf.disabled = false;

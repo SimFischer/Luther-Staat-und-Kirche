@@ -86,10 +86,10 @@ window.SEITEN = [
     { id: "b2", typ: "text",
       frage: "Der Text nennt etwas, das beide Regimente gemeinsam haben. Formuliere es in einem eigenen Satz.",
       minLen: 25,
-      schluessel: [["reich gottes", "reiches gottes", "gottes reich"]],
+      schluessel: [["reich gottes", "reiches gottes", "gottes reich", "reich des bösen", "reiches des bösen", "im dienst", "im dienste", "gegen das böse"]],
       platzhalter: "Beide Regimente …",
       hinweisLeer: "Deine Antwort fehlt noch.",
-      hinweisSchluessel: "Der gemeinsame Kern ist noch nicht präzise genug. Lies den Satz unmittelbar vor der Erklärung des geistlichen und weltlichen Regiments erneut: Was verbindet beide?" },
+      hinweisSchluessel: "Der gemeinsame Kern ist noch nicht präzise genug. Lies den Satz, der die Beschreibung der beiden Regimente einleitet, erneut: In wessen Dienst stehen beide – und wogegen kämpfen sie gemeinsam?" },
 
     { id: "b3", typ: "mc",
       frage: "Mit welchen Mitteln regiert Gott nach Luther im geistlichen Regiment?",
@@ -104,7 +104,7 @@ window.SEITEN = [
     { id: "b4", typ: "mc",
       frage: "Warum braucht Gott nach Luther „vorläufig noch eine andere Regierweise“?",
       optionen: [
-        "Weil die meisten Menschen keine Christen sind",
+        "Weil die Kirche ohne den Schutz der Fürsten nicht bestehen kann",
         "Weil die Kirche zu wenig Macht besitzt",
         "Weil die Fürsten es von ihm verlangt haben",
         "Weil das Reich Gottes erst angebrochen und noch im Kampf mit dem Reich des Bösen ist"],
@@ -192,8 +192,8 @@ window.SEITEN = [
           rueck: "Der Text nennt es ausdrücklich unverantwortlich zu behaupten, der christliche Glaube habe mit weltlichen Dingen nichts zu tun. Gefordert ist nicht Rückzug, sondern Unterscheidung." },
         { id: "d1c", text: "Aus dem christlichen Glauben ergibt sich für jede politische Frage eindeutig eine bestimmte Lösung.", loesung: 2,
           rueck: "In weltlichen Dingen, die auch Nichtchristen betreffen, kennt auch der Glaube keine Patentlösungen; dort hilft fachlich qualifiziertes Abwägen und Diskutieren." },
-        { id: "d1d", text: "Religion ist Privatsache und hat in der Politik nichts zu suchen.", loesung: 1, begruendung: true,
-          rueck: "In dieser Pauschalität nicht haltbar: Geistliche Fragen lassen sich nicht argumentativ entscheiden, zugleich sollen Gläubige ihren Glauben im politischen und gesellschaftlichen Engagement bewähren. Zu unterscheiden ist, nicht zu trennen." },
+        { id: "d1d", text: "Geistliches und weltliches Regiment müssen strikt voneinander getrennt werden.", loesung: 1, begruendung: true,
+          rueck: "Der Text verlangt, beide nicht zu verwechseln und zu vermischen: die Welt soll nicht verkirchlicht, die Kirche nicht verweltlicht werden. Zugleich stehen beide im Dienste des Reiches Gottes, und derselbe Mensch nimmt in beiden seine Aufgaben wahr. Zu unterscheiden ist also, nicht zu trennen." },
         { id: "d1e", text: "Die vernünftige Sachanalyse und Fragen der Wertung sollen nicht vorschnell vermischt werden.", loesung: 0,
           rueck: "Das empfiehlt der Text um der Klarheit und Sachlichkeit des Entscheidungsprozesses willen: Glaubensfragen sollen Glaubensfragen und Sachfragen Sachfragen bleiben." },
         { id: "d1f", text: "Das Evangelium lässt sich unmittelbar mit einer bestimmten parteipolitischen Position gleichsetzen.", loesung: 2,
@@ -327,7 +327,7 @@ window.SEITEN = [
 {
   id: "stellungnahme", kurz: "8", kapitel: "Lernschritt 8",
   titel: "Erörterung: gebunden – und trotzdem frei?",
-  lead: "Zum Abschluss bringst du alles zusammen, was du erarbeitet hast: die Entstehungssituation der Schrift, die beiden Regimente, die Doppelbestimmung des Menschen, die Grenzen der Obrigkeit, die Frage des Widerstands und deinen Gegenwartsbezug. Schreibe einen zusammenhängenden Text \u2013 keine Stichpunkte.",
+  lead: "Zum Abschluss bringst du alles zusammen, was du erarbeitet hast: die Entstehungssituation der Schrift, die beiden Regimente, die Doppelbestimmung des Menschen, die Grenzen der Obrigkeit, die Frage des Widerstands und deinen Gegenwartsbezug. Schreibe einen zusammenhängenden Text – keine Stichpunkte.",
   abschnitt: null,
   aufgaben: [
     { id: "z1", typ: "text",
@@ -335,12 +335,12 @@ window.SEITEN = [
       zusatz: "Belege deine Überlegungen am Text und beziehe deine Ergebnisse aus den Lernschritten 1 bis 7 ein. Richtwert: etwa 400 bis 600 Wörter.",
       minLen: 900,
       zeilen: 18,
-      platzhalter: "Beginne mit der Fragestellung und arbeite dich dann Schritt für Schritt durch deine Argumente \u2026",
+      platzhalter: "Beginne mit der Fragestellung und arbeite dich dann Schritt für Schritt durch deine Argumente …",
       strukturOffen: true,
-      strukturTitel: "Strukturhilfe: Einleitung \u2013 Hauptteil \u2013 Schluss",
+      strukturTitel: "Strukturhilfe: Einleitung – Hauptteil – Schluss",
       struktur: [
         { titel: "Einleitung",
-          zusatz: "Kurz halten \u2013 etwa ein Zehntel deines Textes.",
+          zusatz: "Kurz halten – etwa ein Zehntel deines Textes.",
           punkte: [
             "Benenne Verfasser, Schrift und Entstehungssituation in einem Satz (Jahr, Anlass, Adressat).",
             "Führe zum Kern hin: Luther unterscheidet zwei Regimente und bestimmt den Menschen doppelt.",
@@ -350,17 +350,17 @@ window.SEITEN = [
         { titel: "Hauptteil",
           zusatz: "Der längste Teil. Baue ihn in klaren Abschnitten auf und belege jede Aussage am Text.",
           punkte: [
-            "Darstellung: Erkläre Luthers Position \u2013 geistliches und weltliches Regiment, ihre Mittel, ihr gemeinsamer Ursprung und ihr jeweiliges Ziel.",
+            "Darstellung: Erkläre Luthers Position – geistliches und weltliches Regiment, ihre Mittel, ihr gemeinsamer Ursprung und ihr jeweiliges Ziel.",
             "Darstellung: Zeige, warum nach Luther derselbe Mensch in beiden Regimenten steht und wo die Grenze zwischen Reich Gottes und Reich des Bösen verläuft.",
-            "Argumente für \u201egebunden heißt unfrei\u201c: Wer sich einer Ordnung unterstellt, gibt Selbstbestimmung ab; Gehorsam gegenüber schlechter Obrigkeit wirkt wie Fremdbestimmung.",
-            "Argumente dagegen: Unterscheide äußere und innere Freiheit. Woran ist der Mensch nach Luther gebunden \u2013 und wovon ist er dadurch gerade nicht mehr abhängig?",
-            "Prüfe die Grenze staatlicher Macht: Warum kann nach Luther niemand zum Glauben gezwungen werden \u2013 und was heißt das für die Freiheit des Einzelnen?",
+            "Argumente für „gebunden heißt unfrei“: Wer sich einer Ordnung unterstellt, gibt Selbstbestimmung ab; Gehorsam gegenüber schlechter Obrigkeit wirkt wie Fremdbestimmung.",
+            "Argumente dagegen: Unterscheide äußere und innere Freiheit. Woran ist der Mensch nach Luther gebunden – und wovon ist er dadurch gerade nicht mehr abhängig?",
+            "Prüfe die Grenze staatlicher Macht: Warum kann nach Luther niemand zum Glauben gezwungen werden – und was heißt das für die Freiheit des Einzelnen?",
             "Beziehe den Widerstandsgedanken ein: Wer freiwillig gehorcht, kann auch begründet widersprechen. Was folgt daraus für deine Frage?",
             "Gegenwartsbezug: Nutze deinen Konflikt aus Lernschritt 7 und die Unterscheidung von Sachfragen und Glaubensfragen.",
             "Wäge ab: Nimm mindestens einen Einwand gegen deine eigene Linie ernst und antworte darauf."
           ] },
         { titel: "Schluss",
-          zusatz: "Keine neuen Argumente mehr \u2013 aber eine klare Position.",
+          zusatz: "Keine neuen Argumente mehr – aber eine klare Position.",
           punkte: [
             "Bündele dein Ergebnis in zwei bis drei Sätzen.",
             "Nimm begründet Stellung: Wie beantwortest du die Leitfrage?",
@@ -368,8 +368,8 @@ window.SEITEN = [
           ] }
       ],
       anstoesse: [
-        "Kann Gehorsam freiwillig sein \u2013 und ändert das etwas an seinem Wert?",
-        "Wem gegenüber ist der Christ nach Luther frei \u2013 und wem gegenüber dient er?",
+        "Kann Gehorsam freiwillig sein – und ändert das etwas an seinem Wert?",
+        "Wem gegenüber ist der Christ nach Luther frei – und wem gegenüber dient er?",
         "Ist jemand, der aus Überzeugung dient, weniger frei als jemand, der nichts tun muss?",
         "Was bedeutet es für den Zwingenden und für den Gezwungenen, dass Glaube sich nicht erzwingen lässt?",
         "Könnte es sein, dass Freiheit und Dienst bei Luther keine Gegensätze sind, sondern zusammengehören?"

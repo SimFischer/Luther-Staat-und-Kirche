@@ -1,0 +1,54 @@
+Luther – Staat und Kirche: korrigierte Dateien vom 15.09.2026
+=============================================================
+
+Inhalt (4 Dateien, gleiche Struktur wie im Repository):
+
+  index.html                  -> Versionsnummern erhoeht
+  lehrer.html                 -> Versionsnummern erhoeht
+  assets/js/seiten.js         -> 4 inhaltliche Korrekturen
+  assets/js/tafelbild.js      -> 1 inhaltliche Korrektur
+
+So laedst du sie hoch
+---------------------
+1. ZIP entpacken.
+2. Auf GitHub ins Repository SimFischer/Luther-Staat-und-Kirche gehen
+   (Hauptverzeichnis, nicht in einen Unterordner).
+3. Add file -> Upload files.
+4. Die DREI Elemente index.html, lehrer.html und den Ordner assets
+   gemeinsam in das Feld ziehen. Nicht den entpackten Oberordner ziehen,
+   sonst legt GitHub ein zusaetzliches Verzeichnis an.
+5. Commit changes.
+
+Nach ein bis zwei Minuten ist die Seite neu gebaut.
+Zum Pruefen einmal mit Strg+Shift+R neu laden.
+
+Was geaendert wurde
+-------------------
+seiten.js
+  * Lernschritt 2, Aufgabe b2: Die Schluesselwortpruefung akzeptiert jetzt
+    auch "kaempfen gegen das Reich des Boesen" und "stehen im Dienst".
+    Vorher wurden richtige Antworten abgewiesen - und wegen der Seitensperre
+    kamen die Betroffenen nicht weiter.
+  * Lernschritt 2, Aufgabe b2: Hinweistext praeziser gefasst.
+  * Lernschritt 2, Aufgabe b4: Die falsche Antwortoption
+    "Weil die meisten Menschen keine Christen sind" wurde ersetzt.
+    Sie war Luthers echtes Argument aus dem Sermon von 1523 und damit
+    als Distraktor unfair.
+  * Lernschritt 4, Aussage d1d: Ersetzt durch
+    "Geistliches und weltliches Regiment muessen strikt voneinander
+    getrennt werden." Die alte Aussage war praktisch identisch mit d1b,
+    sollte aber anders eingeordnet werden. Die Rueckmeldung wurde
+    entsprechend neu formuliert.
+
+tafelbild.js
+  * Baustein b10 lautete "Glaube bewaehrt sich im politischen Engagement,
+    muss sich aber aus Sachfragen heraushalten". Das ist das Gegenteil
+    dessen, was Kliemann schreibt, und widersprach der eigenen Aufgabe d1b.
+    Neu: "... liefert in Sachfragen aber keine Patentloesungen".
+
+Nicht geaendert
+---------------
+Die Mindestlaenge der Eroerterung in Lernschritt 8 steht weiter bei
+900 Zeichen, obwohl der Richtwert 400 bis 600 Woerter nennt. Eine
+haertere Grenze koennte schwaechere Schuelerinnen und Schueler am Ende
+der Stunde blockieren - das ist deine Entscheidung.

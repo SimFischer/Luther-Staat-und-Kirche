@@ -18,32 +18,32 @@
   ];
 
   var BAUSTEINE = [
-    { id: "b1",  text: "(Christen-)Mensch",                                     feld: "mensch" },
-    { id: "b2",  text: "Weltperson",                                            feld: "welt" },
-    { id: "b3",  text: "Christperson",                                          feld: "christ" },
-    { id: "b4",  text: "Weltliches Regiment",                                   feld: "wreg" },
-    { id: "b5",  text: "Geistliches Regiment",                                  feld: "greg" },
-    { id: "b6",  text: "beide stehen im Dienste des Reiches Gottes",            feld: "dienst" },
-    { id: "b7",  text: "Die Politik benötigt Gesetze",                          feld: "gesetze" },
-    { id: "b8",  text: "Im Reich Gottes herrschen Liebe und Friede",            feld: "liebe" },
+    { id: "b1",  text: "(Christen-)Mensch", feld: "mensch" },
+    { id: "b2",  text: "Weltperson", feld: "welt" },
+    { id: "b3",  text: "Christperson", feld: "christ" },
+    { id: "b4",  text: "Weltliches Regiment", feld: "wreg" },
+    { id: "b5",  text: "Geistliches Regiment", feld: "greg" },
+    { id: "b6",  text: "beide stehen im Dienste des Reiches Gottes", feld: "dienst" },
+    { id: "b7",  text: "Die Politik benötigt Gesetze", feld: "gesetze" },
+    { id: "b8",  text: "Im Reich Gottes herrschen Liebe und Friede", feld: "liebe" },
     { id: "b9",  text: "Die Regierung darf sich nicht in Glaubensfragen einmischen", feld: "regierung" },
-    { id: "b10", text: "Glaube bewährt sich im politischen Engagement, muss sich aber aus Sachfragen heraushalten", feld: "glaube" },
+    { id: "b10", text: "Glaube bewährt sich im politischen Engagement, liefert in Sachfragen aber keine Patentlösungen", feld: "glaube" },
     { id: "b11", text: "ABER: Wenn die Regierung ihre Aufgabe nicht wahrnimmt, ist Widerstand nötig.", feld: "wider" },
-    { id: "x1",  text: "Die Obrigkeit verkündigt das Evangelium",               feld: null },
-    { id: "x2",  text: "Christen sind von den weltlichen Gesetzen befreit",     feld: null }
+    { id: "x1",  text: "Die Obrigkeit verkündigt das Evangelium", feld: null },
+    { id: "x2",  text: "Christen sind von den weltlichen Gesetzen befreit", feld: null }
   ];
 
   var LINIEN = [
-    { von: "mensch",  nach: "welt",      pfeil: true  },
-    { von: "mensch",  nach: "christ",    pfeil: true  },
-    { von: "welt",    nach: "wreg",      fein: true   },
-    { von: "christ",  nach: "greg",      fein: true   },
-    { von: "wreg",    nach: "dienst",    fein: true   },
-    { von: "dienst",  nach: "greg",      fein: true   },
-    { von: "gesetze", nach: "regierung", fein: true   },
-    { von: "regierung", nach: "liebe",   pfeil: true  },
-    { von: "glaube",  nach: "gesetze",   pfeil: true  },
-    { von: "liebe",   nach: "glaube",    fein: true   }
+    { von: "mensch",  nach: "welt",      pfeil: true },
+    { von: "mensch",  nach: "christ",    pfeil: true },
+    { von: "welt",    nach: "wreg",      fein: true },
+    { von: "christ",  nach: "greg",      fein: true },
+    { von: "wreg",    nach: "dienst",    fein: true },
+    { von: "dienst",  nach: "greg",      fein: true },
+    { von: "gesetze", nach: "regierung", fein: true },
+    { von: "regierung", nach: "liebe",   pfeil: true },
+    { von: "glaube",  nach: "gesetze",   pfeil: true },
+    { von: "liebe",   nach: "glaube",    fein: true }
   ];
 
   function baustein(bid) {
@@ -70,8 +70,8 @@
       '<div class="tafel-huelle">' +
         '<div class="tafel' + (nurAnzeige ? " tafel-statisch" : "") + '">' +
           '<svg class="linien" aria-hidden="true"><defs>' +
-            '<marker id="pf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">' +
-              '<path d="M0,0 L10,5 L0,10 z" fill="#3a5878"></path></marker>' +
+          '<marker id="pf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">' +
+          '<path d="M0,0 L10,5 L0,10 z" fill="#3a5878"></path></marker>' +
           "</defs></svg>" +
           FELDER.map(function (f) {
             return '<div class="slot ' + f.klasse + '" data-feld="' + f.id + '"></div>';
@@ -83,8 +83,8 @@
           '<span class="zusatz" data-rolle="status" style="margin:0"></span></div>') +
       "</div>";
 
-    var tafel  = ziel.querySelector(".tafel");
-    var svg    = ziel.querySelector("svg.linien");
+    var tafel = ziel.querySelector(".tafel");
+    var svg = ziel.querySelector("svg.linien");
     var vorrat = ziel.querySelector('[data-rolle="vorrat"]');
     var status = ziel.querySelector('[data-rolle="status"]');
 
@@ -103,10 +103,10 @@
         var p1 = rand(a, b.x + b.w / 2, b.y + b.h / 2);
         var p2 = rand(b, a.x + a.w / 2, a.y + a.h / 2);
         inhalt += '<line x1="' + p1.x.toFixed(1) + '" y1="' + p1.y.toFixed(1) +
-                  '" x2="' + p2.x.toFixed(1) + '" y2="' + p2.y.toFixed(1) +
-                  '" stroke="#3a5878" stroke-width="' + (l.fein ? 1 : 1.6) +
-                  '" opacity="' + (l.fein ? .45 : .8) + '"' +
-                  (l.pfeil ? ' marker-end="url(#pf)"' : "") + "></line>";
+          '" x2="' + p2.x.toFixed(1) + '" y2="' + p2.y.toFixed(1) +
+          '" stroke="#3a5878" stroke-width="' + (l.fein ? 1 : 1.6) +
+          '" opacity="' + (l.fein ? .45 : .8) + '"' +
+          (l.pfeil ? ' marker-end="url(#pf)"' : "") + "></line>";
       });
       svg.innerHTML = inhalt;
     }
@@ -119,7 +119,7 @@
           el.classList.add("voll");
           el.innerHTML = window.Leser.esc(b.text) +
             (nurAnzeige ? "" : '<button type="button" class="weg" data-weg="' + el.dataset.feld +
-             '" aria-label="Baustein entfernen">×</button>');
+              '" aria-label="Baustein entfernen">×</button>');
         } else {
           el.classList.remove("voll");
           el.innerHTML = '<span class="leer">hier einordnen</span>';
@@ -130,13 +130,13 @@
         vorrat.innerHTML = BAUSTEINE.filter(function (b) { return benutzt.indexOf(b.id) < 0; })
           .map(function (b) {
             return '<button type="button" class="baustein' + (gewaehlt === b.id ? " gewaehlt" : "") +
-                   '" data-baustein="' + b.id + '">' + window.Leser.esc(b.text) + "</button>";
+              '" data-baustein="' + b.id + '">' + window.Leser.esc(b.text) + "</button>";
           }).join("") || '<span class="zusatz" style="margin:0">Alle Bausteine sind eingeordnet.</span>';
       }
       if (status) {
         var offen = FELDER.filter(function (f) { return !state.tafelbild[f.id]; }).length;
         status.textContent = offen ? offen + " von " + FELDER.length + " Feldern sind noch leer."
-                                   : "Alle Felder sind belegt.";
+          : "Alle Felder sind belegt.";
       }
       requestAnimationFrame(zeichnen);
     }
@@ -236,7 +236,7 @@
     var leer = FELDER.filter(function (f) { return !t[f.id]; });
     if (leer.length) {
       return ["Es " + (leer.length === 1 ? "ist noch 1 Feld" : "sind noch " + leer.length + " Felder") +
-              " leer. Beginne oben mit der Person und überlege, welche zwei Perspektiven auf denselben Menschen der Text unterscheidet."];
+        " leer. Beginne oben mit der Person und überlege, welche zwei Perspektiven auf denselben Menschen der Text unterscheidet."];
     }
     var fehler = [];
     var ablenker = FELDER.filter(function (f) { var b = baustein(t[f.id]); return b && !b.feld; });

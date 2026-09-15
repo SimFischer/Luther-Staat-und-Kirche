@@ -394,9 +394,11 @@
 
   function sicherungHtml(aufAbgabeseite) {
     var h = '<section class="karte sicherung"><h2>Arbeit sichern und fortsetzen</h2>' +
-      '<p class="zusatz">Wenn du in der Stunde nicht fertig wirst: Zwischenstand herunterladen und beim nächsten Mal wieder hochladen. Auf diesem Gerät bleibt dein Stand ohnehin gespeichert.</p>';
+      '<p class="zusatz">Wenn du in der Stunde nicht fertig wirst: Zwischenstand herunterladen und beim nächsten Mal wieder hochladen. Auf diesem Gerät bleibt dein Stand ohnehin gespeichert. ' +
+      "Für die Klausurvorbereitung: „Ergebnisse als PDF sichern“ erstellt jederzeit eine vollständige Übersicht mit allen Lernschritten und deinen Antworten \u2013 auch nach der Abgabe.</p>";
     if (!aufAbgabeseite) h += personFelder();
     h += '<div class="knopfzeile">' +
+      '<button type="button" class="knopf stumm" data-drucken="1">Ergebnisse als PDF sichern</button>' +
       '<button type="button" class="knopf stumm" data-sichern="datei">Zwischenstand herunterladen</button>' +
       '<label class="knopf stumm dateiwahl">Zwischenstand hochladen' +
       '<input type="file" accept=".json,application/json" data-laden="1" hidden></label>';

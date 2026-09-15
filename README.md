@@ -68,7 +68,10 @@ Weitere Merkmale:
 * **Ergebnisse als PDF sichern**: Der Knopf „Ergebnisse als PDF sichern“ (auf der
   Sicherungskarte und auf der Abgabeseite) öffnet eine vollständige Übersicht mit
   allen Lernschritten, den eigenen Antworten, dem Tafelbild und den
-  Textmarkierungen. Von dort führt „Als PDF sichern / drucken“ in den Druckdialog;
+  Textmarkierungen. Der Knopf steht auf **jeder Seite** in der Karte „Arbeit
+  sichern und fortsetzen“ und zusätzlich auf der Abgabeseite – auch nach der
+  verbindlichen Abgabe, etwa zur Klausurvorbereitung.
+  Von dort führt „Als PDF sichern / drucken“ in den Druckdialog;
   dort „Als PDF speichern“ wählen. Es werden bewusst **keine Musterlösungen und
   keine Bewertungen** ausgegeben. Zurück geht es mit dem zweiten Knopf oder Escape.
 * Unter jeder Seite steht der Bereich **Arbeit sichern und fortsetzen**
